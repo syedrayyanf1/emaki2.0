@@ -1,5 +1,5 @@
 import { Cherry, MessageSquare, Flame, Smile, Archive } from 'lucide-react';
-import { SEASON_CAPSULES, getCoverGradient } from '../data/mockData';
+import { SEASON_CAPSULES, getCoverGradient, ANIME_DB } from '../data/mockData';
 
 const SEASON_ICONS: Record<string, string> = {
   Winter: '❄️',

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, BookOpen, MessageSquare, Compass, Cherry, Gift, Menu, X, Moon, Sun } from 'lucide-react';
-import { USER_PROFILE, getCoverGradient, RANKS } from '../data/mockData';
+import { User, BookOpen, MessageSquare, Compass, Cherry, Gift, Menu, X } from 'lucide-react';
+import { USER_PROFILE, RANKS } from '../data/mockData';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Profile', icon: User },
@@ -15,23 +15,11 @@ const NAV_ITEMS = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return document.documentElement.classList.contains('dark') || 
-             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    return false;
-  });
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-    }
-  }, [darkMode]);
+    document.documentElement.classList.add('dark');
+    localStorage.theme = 'dark';
+  }, []);
 
   return (
     <div className="min-h-screen bg-parchment transition-colors duration-300 dark:bg-night">
@@ -39,9 +27,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-[#e8dfd2] dark:border-white/5 bg-parchment/95 dark:bg-night/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5">
-            <span className="text-2xl">🏮</span>
-            <span className="font-serif-jp text-xl font-bold tracking-wide text-ink dark:text-cream">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <span className="text-2xl transition-transform group-hover:rotate-12">🏮</span>
+            <span className="font-logo text-2xl font-bold tracking-tight text-ink dark:text-cream">
               Emaki
             </span>
             <span className="font-serif-jp text-xs text-ink-muted hidden sm:block">絵巻</span>
@@ -70,19 +58,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </nav>
 
           {/* Profile + Actions */}
-          <div className="flex items-center gap-3">
-            {/* Dark Mode Toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-1.5 rounded-lg text-ink-muted hover:text-ink dark:hover:text-cream hover:bg-ink/5 dark:hover:bg-white/5 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-
+          <div className="flex items-center gap-4">
             {/* User mini */}
-            <div className="flex items-center gap-2 border-l border-[#e8dfd2] dark:border-white/10 pl-3">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-xs font-bold">
+            <div className="flex items-center gap-2 pl-3">
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-vermillion/20 border border-white/10">
                 SK
               </div>
               <div className="hidden sm:flex flex-col">
