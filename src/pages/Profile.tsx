@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BookOpen, BarChart3, Users, Sparkles, Heart, ChevronDown, ChevronRight, Pin, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { USER_PROFILE, ANIME_DB, POSTS, RANKS, getCoverGradient } from '../data/mockData';
+import { USER_PROFILE, ANIME_DB, POSTS, getCoverGradient } from '../data/mockData';
 
 const SIDE_SECTIONS = [
   { key: 'scroll', label: 'Scroll', icon: BookOpen },
@@ -51,14 +51,14 @@ export default function Profile() {
                 className="group relative h-10 w-10 rounded-lg overflow-hidden border border-[#e8dfd2] dark:border-white/10 bg-white dark:bg-night-paper cursor-pointer transition-transform hover:scale-110 shadow-sm"
               >
                 <img 
-                  src={entry.logo} 
+                  src={entry.cover} 
                   alt={entry.title} 
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-ink/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                    <span className="text-[8px] text-white font-bold text-center px-1 leading-tight">{entry.titleJp.charAt(0)}</span>
                 </div>
-                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ink px-2 py-0.5 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-ink dark:bg-night-paper px-2 py-1 text-[10px] font-medium text-white shadow-xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-50 transform group-hover:-translate-y-1">
                   {entry.title}
                 </div>
               </div>
