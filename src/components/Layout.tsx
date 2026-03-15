@@ -28,11 +28,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <img src="/logo.png" alt="Emaki Logo" className="h-8 w-8 transition-transform group-hover:rotate-12 drop-shadow-[0_0_8px_rgba(199,62,29,0.3)]" />
+            <img src="/logo.png" alt="Emaki Logo" className="h-12 w-12 transition-transform group-hover:rotate-12 drop-shadow-[0_0_8px_rgba(199,62,29,0.3)]" />
             <span className="font-logo text-2xl font-bold tracking-tight text-ink dark:text-cream">
               Emaki
             </span>
-            <span className="font-serif-jp text-xs text-ink-muted hidden sm:block">絵巻</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -66,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-sm font-semibold text-ink dark:text-cream leading-none">{USER_PROFILE.username}</span>
-                <span className="text-[10px] text-vermillion dark:text-vermillion-light font-medium">{USER_PROFILE.rank.kanji} {USER_PROFILE.rank.name}</span>
+                <span className="text-[10px] text-vermillion dark:text-vermillion-light font-medium">{USER_PROFILE.rank.name}</span>
               </div>
             </div>
 
@@ -140,7 +139,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         : 'text-ink-muted dark:text-cream-muted hover:bg-ink/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <span className="font-serif-jp text-lg">{rank.kanji}</span>
                     <span className="text-[10px] font-bold uppercase tracking-tighter">{rank.name}</span>
                     {rank.name === USER_PROFILE.rank.name && <span className="text-[8px] font-medium opacity-70">CURRENT</span>}
                   </div>

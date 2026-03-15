@@ -279,6 +279,19 @@ export const USERS: UserProfile[] = [
     tasteTwin: 74,
     joinDate: '2023-06-15',
     starred: ANIME_DB.filter(a => [3, 5, 8, 12].includes(a.id)),
+  },
+  {
+    id: 'waverider',
+    username: 'WaveRider',
+    avatar: '',
+    rank: RANKS[2], // Scout
+    bio: 'Surfing the waves of the latest seasonal releases. 🌊',
+    scrollCount: 45,
+    following: 30,
+    followers: 112,
+    tasteTwin: 78,
+    joinDate: '2024-01-05',
+    starred: ANIME_DB.filter(a => [1, 9, 11].includes(a.id)),
   }
 ];
 
@@ -311,13 +324,13 @@ export const POSTS: Post[] = [
     agrees: 31, disagrees: 2, replies: 5,
   },
   {
-    id: 5, userId: 'nightowl', author: 'NightOwl', avatar: '', rank: RANKS[3],
+    id: 5, userId: 'artcritic', author: 'ArtCritic', avatar: '', rank: RANKS[4],
     content: 'Dandadan episode 8 was INSANE. The sakuga in that fight scene was movie quality. Science SARU is doing God\'s work.',
     timestamp: '12h ago', channel: 'episode', animeId: 3, animeTitle: 'Dandadan',
     episode: 8, replies: 22,
   },
   {
-    id: 6, userId: 'silentreader', author: 'SilentReader', avatar: '', rank: RANKS[1],
+    id: 6, userId: 'inkblade', author: 'InkBlade', avatar: '', rank: RANKS[5],
     content: 'One Piece chapter 1108 hits different after everything. Oda really is the GOAT of foreshadowing.',
     timestamp: '6h ago', channel: 'episode', animeId: 4, animeTitle: 'One Piece',
     episode: 1108, replies: 18,

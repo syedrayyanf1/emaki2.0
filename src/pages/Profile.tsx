@@ -24,6 +24,7 @@ export default function Profile() {
     additions: false,
     taste: !isOwnProfile, // Hide taste section for own profile initially
   });
+  const [activeTab, setActiveTab] = useState('Activity');
 
   const toggleSection = (key: string) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -44,9 +45,11 @@ export default function Profile() {
           <div className="mx-auto h-20 w-20 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-2xl font-bold font-serif-jp shadow-lg shadow-vermillion/20">
             {user.username.substring(0, 2).toUpperCase()}
           </div>
-          <h1 className="mt-3 text-lg font-bold text-ink dark:text-cream font-serif-jp">{user.username}</h1>
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <span className="font-serif-jp text-xl text-vermillion/40">絵巻</span>
+            <h1 className="text-lg font-bold text-ink dark:text-cream font-serif-jp">{user.username}</h1>
+          </div>
           <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-vermillion/10 px-3 py-0.5">
-            <span className="font-serif-jp text-sm text-vermillion">{user.rank.kanji}</span>
             <span className="text-xs font-semibold text-vermillion">{user.rank.name}</span>
           </div>
           {/* Starred emblems (Logos) */}
@@ -138,6 +141,24 @@ export default function Profile() {
 
       {/* Main Content */}
       <div className="flex-1 min-w-0 space-y-5">
+        {!isOwnProfile && (
+          <div className="paper-card rounded-xl p-1.5 flex items-center gap-1 scroll-unroll scroll-unroll-delay-1">
+            {['Scrolls', 'Additions', 'Activity'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+                  activeTab === tab 
+                    ? 'bg-vermillion/10 text-vermillion' 
+                    : 'text-ink-muted hover:text-ink dark:hover:text-cream hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Byosha (Bio) */}
         <div className="paper-card rounded-xl p-5 scroll-unroll scroll-unroll-delay-1">
           <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream mb-2">Byosha</h2>
@@ -162,7 +183,6 @@ export default function Profile() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                      <span className="text-[10px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
                       <span className="text-[10px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
                       <span className="rounded-full bg-indigo-accent/10 px-2 py-0.5 text-[10px] font-medium text-indigo-accent">{post.channel}</span>
                       <span className="text-[10px] text-ink-muted dark:text-cream-muted">in <span className="text-vermillion/80">{post.animeTitle}</span></span>
@@ -198,7 +218,6 @@ export default function Profile() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <Link to={`/profile/${post.userId}`} className="text-xs font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                      <span className="text-[9px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
                       <span className="text-[9px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
                     </div>
                     <p className="mt-1 text-xs text-ink-light dark:text-cream-muted leading-relaxed line-clamp-2">{post.content}</p>

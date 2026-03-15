@@ -26,13 +26,12 @@ export default function Landing({ onAuth }: LandingProps) {
 
       <div className="relative z-10 max-w-2xl w-full space-y-12">
         {/* Branding */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center justify-center h-24 w-24 rounded-3xl bg-vermillion/10 shadow-2xl shadow-vermillion/20 mb-4 group transition-transform hover:scale-105 duration-500">
-            <img src="/logo.png" alt="Emaki Logo" className="h-16 w-16 drop-shadow-[0_0_15px_rgba(199,62,29,0.5)]" />
+        <div className="flex flex-col items-center space-y-4">
+          <div className="inline-flex items-center justify-center h-48 w-48 rounded-[3rem] bg-vermillion/10 shadow-2xl shadow-vermillion/20 mb-4 group transition-transform hover:scale-105 duration-500">
+            <img src="/logo.png" alt="Emaki Logo" className="h-32 w-32 drop-shadow-[0_0_15px_rgba(199,62,29,0.5)]" />
           </div>
           <h1 className="font-logo text-6xl font-bold tracking-tight text-ink dark:text-cream">
             Emaki
-            <span className="font-serif-jp text-xl text-ink-muted ml-3 opacity-60">絵巻</span>
           </h1>
           <p className="text-xl text-ink-muted dark:text-cream-muted max-w-lg mx-auto leading-relaxed">
             Your majestic chronicle of anime and manga. Unroll the scroll and share your journey with the community.

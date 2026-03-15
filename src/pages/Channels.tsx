@@ -43,7 +43,7 @@ function PostCard({ post }: { post: Post }) {
           {/* Header */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-            <span className="text-[10px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
+            <span className="text-[10px] font-semibold text-vermillion/80">{post.rank.name}</span>
             <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-medium ${conf.color}`}>
               <ChannelIcon size={9} />
               {conf.label}
