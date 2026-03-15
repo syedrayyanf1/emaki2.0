@@ -28,7 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <span className="text-2xl transition-transform group-hover:rotate-12">🏮</span>
+            <img src="/logo.png" alt="Emaki Logo" className="h-8 w-8 transition-transform group-hover:rotate-12 drop-shadow-[0_0_8px_rgba(199,62,29,0.3)]" />
             <span className="font-logo text-2xl font-bold tracking-tight text-ink dark:text-cream">
               Emaki
             </span>

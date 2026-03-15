@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { BookOpen, BarChart3, Users, Sparkles, Heart, ChevronDown, ChevronRight, Pin, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { USER_PROFILE, ANIME_DB, POSTS, getCoverGradient } from '../data/mockData';
+import { USERS, CURRENT_USER_ID, ANIME_DB, POSTS, getCoverGradient } from '../data/mockData';
 
 const SIDE_SECTIONS = [
   { key: 'scroll', label: 'Scroll', icon: BookOpen },
@@ -11,12 +12,17 @@ const SIDE_SECTIONS = [
 ];
 
 export default function Profile() {
+  const { userId } = useParams();
+  const currentUserId = userId || CURRENT_USER_ID;
+  const user = USERS.find(u => u.id === currentUserId) || USERS[0];
+  const isOwnProfile = currentUserId === CURRENT_USER_ID;
+
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     scroll: true,
     stats: true,
     social: false,
     additions: false,
-    taste: true,
+    taste: !isOwnProfile, // Hide taste section for own profile initially
   });
 
   const toggleSection = (key: string) => {
@@ -36,16 +42,16 @@ export default function Profile() {
         {/* Avatar Card */}
         <div className="paper-card rounded-xl p-5 text-center">
           <div className="mx-auto h-20 w-20 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-2xl font-bold font-serif-jp shadow-lg shadow-vermillion/20">
-            SK
+            {user.username.substring(0, 2).toUpperCase()}
           </div>
-          <h1 className="mt-3 text-lg font-bold text-ink dark:text-cream font-serif-jp">{USER_PROFILE.username}</h1>
+          <h1 className="mt-3 text-lg font-bold text-ink dark:text-cream font-serif-jp">{user.username}</h1>
           <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-vermillion/10 px-3 py-0.5">
-            <span className="font-serif-jp text-sm text-vermillion">{USER_PROFILE.rank.kanji}</span>
-            <span className="text-xs font-semibold text-vermillion">{USER_PROFILE.rank.name}</span>
+            <span className="font-serif-jp text-sm text-vermillion">{user.rank.kanji}</span>
+            <span className="text-xs font-semibold text-vermillion">{user.rank.name}</span>
           </div>
           {/* Starred emblems (Logos) */}
           <div className="mt-4 flex justify-center gap-2">
-            {USER_PROFILE.starred.map(entry => (
+            {user.starred.map(entry => (
               <div
                 key={entry.id}
                 className="group relative h-10 w-10 rounded-lg overflow-hidden border border-[#e8dfd2] dark:border-white/10 bg-white dark:bg-night-paper cursor-pointer transition-transform hover:scale-110 shadow-sm"
@@ -64,11 +70,13 @@ export default function Profile() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-[10px] text-ink-muted dark:text-cream-muted">Joined {USER_PROFILE.joinDate}</p>
+          <p className="mt-3 text-[10px] text-ink-muted dark:text-cream-muted">Joined {user.joinDate}</p>
         </div>
 
         {/* Collapsible Sections */}
         {SIDE_SECTIONS.map(section => {
+          if (section.key === 'taste' && isOwnProfile) return null;
+          
           const Icon = section.icon;
           const isOpen = openSections[section.key];
           return (
@@ -86,7 +94,7 @@ export default function Profile() {
                   <div className="brushstroke-divider mb-3" />
                   {section.key === 'scroll' && (
                     <div className="space-y-2">
-                      <div className="flex justify-between"><span className="text-ink-muted dark:text-cream-muted">Total Entries</span><span className="font-semibold text-ink dark:text-cream">{USER_PROFILE.scrollCount}</span></div>
+                      <div className="flex justify-between"><span className="text-ink-muted dark:text-cream-muted">Total Entries</span><span className="font-semibold text-ink dark:text-cream">{user.scrollCount}</span></div>
                       <div className="flex justify-between"><span className="text-ink-muted dark:text-cream-muted">Completed</span><span className="font-semibold text-sage-green">{completedCount}</span></div>
                       <div className="flex justify-between"><span className="text-ink-muted dark:text-cream-muted">Watching / Reading</span><span className="font-semibold text-indigo-accent">{watchingCount}</span></div>
                       <div className="flex justify-between"><span className="text-ink-muted dark:text-cream-muted">Dropped</span><span className="font-semibold text-ink-muted dark:text-cream-muted">{droppedCount}</span></div>
@@ -117,7 +125,7 @@ export default function Profile() {
                   )}
                   {section.key === 'taste' && (
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-vermillion font-serif-jp">{USER_PROFILE.tasteTwin}%</div>
+                      <div className="text-3xl font-bold text-vermillion font-serif-jp">{user.tasteTwin}%</div>
                       <p className="text-xs text-ink-muted dark:text-cream-muted mt-1">match with your taste</p>
                     </div>
                   )}
@@ -135,7 +143,7 @@ export default function Profile() {
           <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream mb-2">Byosha</h2>
           <div className="brushstroke-divider mb-3" />
           <p className="text-sm text-ink-light dark:text-cream-muted leading-relaxed whitespace-pre-line italic">
-            "{USER_PROFILE.bio}"
+            "{user.bio}"
           </p>
         </div>
 
@@ -148,12 +156,12 @@ export default function Profile() {
             {pinnedPosts.map(post => (
               <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
                 <div className="flex items-start gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-[12px] font-bold shrink-0">
+                  <Link to={`/profile/${post.userId}`} className="h-10 w-10 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-[12px] font-bold shrink-0 hover:scale-110 transition-transform">
                     {post.author.substring(0, 2).toUpperCase()}
-                  </div>
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-ink dark:text-cream">{post.author}</span>
+                      <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
                       <span className="text-[10px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
                       <span className="text-[10px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
                       <span className="rounded-full bg-indigo-accent/10 px-2 py-0.5 text-[10px] font-medium text-indigo-accent">{post.channel}</span>
@@ -184,12 +192,12 @@ export default function Profile() {
             {POSTS.slice(0, 6).map(post => (
               <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
                 <div className="flex items-start gap-3">
-                  <div className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id)} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>
+                  <Link to={`/profile/${post.userId}`} className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id)} flex items-center justify-center text-white text-[10px] font-bold shrink-0 hover:scale-110 transition-transform`}>
                     {post.author.substring(0, 2).toUpperCase()}
-                  </div>
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-xs font-semibold text-ink dark:text-cream">{post.author}</span>
+                      <Link to={`/profile/${post.userId}`} className="text-xs font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
                       <span className="text-[9px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
                       <span className="text-[9px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
                     </div>

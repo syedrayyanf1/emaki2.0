@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Hash, MessageSquare, Lightbulb, Zap, Flame, ThumbsUp, ThumbsDown, Filter, Eye, EyeOff } from 'lucide-react';
 import { POSTS, ANIME_DB, getCoverGradient, type Post } from '../data/mockData';
 
@@ -33,15 +34,15 @@ function PostCard({ post }: { post: Post }) {
   };
 
   return (
-    <div className="paper-card rounded-xl p-3.5 paper-card-hover">
+    <div className="paper-card rounded-xl p-3.5 paper-card-hover text-left">
       <div className="flex items-start gap-2.5">
-        <div className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id + 3)} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>
+        <Link to={`/profile/${post.userId}`} className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id + 3)} flex items-center justify-center text-white text-[10px] font-bold shrink-0 hover:scale-110 transition-transform`}>
           {post.author.substring(0, 2).toUpperCase()}
-        </div>
+        </Link>
         <div className="flex-1 min-w-0">
           {/* Header */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-sm font-semibold text-ink dark:text-cream">{post.author}</span>
+            <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
             <span className="text-[10px] font-serif-jp text-vermillion">{post.rank.kanji}</span>
             <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-medium ${conf.color}`}>
               <ChannelIcon size={9} />

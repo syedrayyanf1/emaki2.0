@@ -35,6 +35,7 @@ export interface AnimeEntry {
 }
 
 export interface UserProfile {
+  id: string;
   username: string;
   avatar: string;
   rank: RankInfo;
@@ -49,6 +50,7 @@ export interface UserProfile {
 
 export interface Post {
   id: number;
+  userId: string;
   author: string;
   avatar: string;
   rank: RankInfo;
@@ -225,64 +227,109 @@ export const ANIME_DB: AnimeEntry[] = [
   },
 ];
 
-export const USER_PROFILE: UserProfile = {
-  username: 'ScrollKeeper',
-  avatar: '',
-  rank: RANKS[4], // Captain
-  bio: 'Collector of stories, keeper of scrolls. Manga reader by day, anime watcher by night. Always searching for the next tale that moves the soul. 📜',
-  scrollCount: 147,
-  following: 89,
-  followers: 234,
-  tasteTwin: 78,
-  joinDate: '2023-01-15',
-  starred: ANIME_DB.filter(a => a.starred),
-};
+export const USERS: UserProfile[] = [
+  {
+    id: 'scrollkeeper',
+    username: 'ScrollKeeper',
+    avatar: '',
+    rank: RANKS[4], // Captain
+    bio: 'Collector of stories, keeper of scrolls. Manga reader by day, anime watcher by night. Always searching for the next tale that moves the soul. 📜',
+    scrollCount: 147,
+    following: 89,
+    followers: 234,
+    tasteTwin: 100,
+    joinDate: '2023-01-15',
+    starred: ANIME_DB.filter(a => [1, 2, 4, 5, 7].includes(a.id)),
+  },
+  {
+    id: 'inkblade',
+    username: 'InkBlade',
+    avatar: '',
+    rank: RANKS[5], // Sovereign
+    bio: 'Tracing the lines between reality and fiction. Visual storytelling enthusiast.',
+    scrollCount: 82,
+    following: 120,
+    followers: 430,
+    tasteTwin: 82,
+    joinDate: '2023-03-10',
+    starred: ANIME_DB.filter(a => [1, 3, 6, 9].includes(a.id)),
+  },
+  {
+    id: 'mangaphilosopher',
+    username: 'MangaPhilosopher',
+    avatar: '',
+    rank: RANKS[6], // Sage
+    bio: 'Seeker of truth in the inked panels. Analyzing themes that transcend paper.',
+    scrollCount: 543,
+    following: 200,
+    followers: 1200,
+    tasteTwin: 65,
+    joinDate: '2022-08-22',
+    starred: ANIME_DB.filter(a => [5, 7, 10].includes(a.id)),
+  },
+  {
+    id: 'artcritic',
+    username: 'ArtCritic',
+    avatar: '',
+    rank: RANKS[4], // Captain
+    bio: 'Frame by frame, stroke by stroke. Only the finest visuals survive my scroll.',
+    scrollCount: 210,
+    following: 154,
+    followers: 560,
+    tasteTwin: 74,
+    joinDate: '2023-06-15',
+    starred: ANIME_DB.filter(a => [3, 5, 8, 12].includes(a.id)),
+  }
+];
+
+export const CURRENT_USER_ID = 'scrollkeeper';
+export const USER_PROFILE = USERS.find(u => u.id === CURRENT_USER_ID)!;
 
 export const POSTS: Post[] = [
   {
-    id: 1, author: 'ScrollKeeper', avatar: '', rank: RANKS[4],
+    id: 1, userId: 'scrollkeeper', author: 'ScrollKeeper', avatar: '', rank: RANKS[4],
     content: 'The way Frieren handles the passage of time is unlike anything I\'ve seen. Episode 18\'s exam arc is peak storytelling — it manages to make a test feel like the most important thing in the world.',
     timestamp: '2h ago', channel: 'analysis', animeId: 1, animeTitle: 'Frieren: Beyond Journey\'s End',
     agrees: 42, disagrees: 3, pinned: true, replies: 8,
   },
   {
-    id: 2, author: 'InkBlade', avatar: '', rank: RANKS[5],
+    id: 2, userId: 'inkblade', author: 'InkBlade', avatar: '', rank: RANKS[5],
     content: 'Just finished episode 28. I\'m not crying, you\'re crying. The way they animated that final sequence with the cherry blossoms was breathtaking.',
     timestamp: '5h ago', channel: 'episode', animeId: 1, animeTitle: 'Frieren: Beyond Journey\'s End',
     episode: 28, replies: 15,
   },
   {
-    id: 3, author: 'MangaPhilosopher', avatar: '', rank: RANKS[6],
+    id: 3, userId: 'mangaphilosopher', author: 'MangaPhilosopher', avatar: '', rank: RANKS[6],
     content: 'Hot take: Chainsaw Man Part 2 manga is BETTER than Part 1. The character work with Asa Mitaka elevates everything.',
     timestamp: '1d ago', channel: 'hot-takes', animeId: 2, animeTitle: 'Chainsaw Man',
     agrees: 67, disagrees: 89, replies: 34,
   },
   {
-    id: 4, author: 'WaveRider', avatar: '', rank: RANKS[2],
+    id: 4, userId: 'waverider', author: 'WaveRider', avatar: '', rank: RANKS[2],
     content: 'If you loved Frieren, watch Mushishi. Same contemplative pacing, same beautiful exploration of what it means to exist alongside nature and spirits.',
     timestamp: '3h ago', channel: 'recommendations', animeId: 1, animeTitle: 'Frieren: Beyond Journey\'s End',
     agrees: 31, disagrees: 2, replies: 5,
   },
   {
-    id: 5, author: 'NightOwl', avatar: '', rank: RANKS[3],
+    id: 5, userId: 'nightowl', author: 'NightOwl', avatar: '', rank: RANKS[3],
     content: 'Dandadan episode 8 was INSANE. The sakuga in that fight scene was movie quality. Science SARU is doing God\'s work.',
     timestamp: '12h ago', channel: 'episode', animeId: 3, animeTitle: 'Dandadan',
     episode: 8, replies: 22,
   },
   {
-    id: 6, author: 'SilentReader', avatar: '', rank: RANKS[1],
+    id: 6, userId: 'silentreader', author: 'SilentReader', avatar: '', rank: RANKS[1],
     content: 'One Piece chapter 1108 hits different after everything. Oda really is the GOAT of foreshadowing.',
     timestamp: '6h ago', channel: 'episode', animeId: 4, animeTitle: 'One Piece',
     episode: 1108, replies: 18,
   },
   {
-    id: 7, author: 'ArtCritic', avatar: '', rank: RANKS[4],
+    id: 7, userId: 'artcritic', author: 'ArtCritic', avatar: '', rank: RANKS[4],
     content: 'Hot take: Vagabond\'s art has NEVER been surpassed in manga. Not even by modern digital artists with all their tools.',
     timestamp: '2d ago', channel: 'hot-takes', animeId: 5, animeTitle: 'Vagabond',
     agrees: 124, disagrees: 15, replies: 41,
   },
   {
-    id: 8, author: 'ScrollKeeper', avatar: '', rank: RANKS[4],
+    id: 8, userId: 'scrollkeeper', author: 'ScrollKeeper', avatar: '', rank: RANKS[4],
     content: 'The way Bocchi\'s anxiety is portrayed through animation is genuinely innovative. The medium IS the message here.',
     timestamp: '4h ago', channel: 'analysis', animeId: 6, animeTitle: 'Bocchi the Rock!',
     agrees: 28, disagrees: 1, pinned: true, replies: 6,
