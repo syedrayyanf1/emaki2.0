@@ -185,6 +185,8 @@ export default function Scroll() {
       ? 'sm:grid-cols-1'
       : 'sm:grid-cols-2';
 
+  const headerBlocClass = 'paper-card rounded-xl px-3 py-2 min-w-[220px] max-w-[260px]';
+
   return (
     <div className="scroll-unroll space-y-5">
       {/* Header */}
@@ -200,9 +202,9 @@ export default function Scroll() {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          {/* Anime / Manga pill */}
-          <div className="paper-card rounded-xl px-3 py-2 w-[260px]">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold mb-1">
+          {/* Mode bloc */}
+          <div className={`${headerBlocClass} flex flex-col gap-1`}>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
               Mode
             </p>
             <div className="flex rounded-full bg-ink/5 px-1 py-1">
@@ -213,7 +215,7 @@ export default function Scroll() {
                     setTypeFilter(t);
                     setStatusFilter('all');
                   }}
-                  className={`rounded-full px-4 py-1.5 text-sm font-semibold tracking-tight transition-all ${
+                  className={`flex-1 rounded-full py-1.5 text-sm font-semibold tracking-tight transition-all ${
                     typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
                   }`}
                 >
@@ -223,15 +225,15 @@ export default function Scroll() {
             </div>
           </div>
 
-          {/* Arrange block inline */}
-          <div className="paper-card rounded-xl px-3 py-2 w-[260px] space-y-1">
+          {/* Arrange bloc */}
+          <div className={`${headerBlocClass} flex flex-col gap-1`}>
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
               Arrange
             </p>
-            <div className="flex gap-1">
+            <div className="flex rounded-full bg-ink/5 px-1 py-1">
               <button
                 onClick={() => setSortMode('default')}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
                   sortMode === 'default'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
@@ -241,7 +243,7 @@ export default function Scroll() {
               </button>
               <button
                 onClick={() => setSortMode('score')}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
                   sortMode === 'score'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
@@ -251,7 +253,7 @@ export default function Scroll() {
               </button>
               <button
                 onClick={() => setSortMode('popularity')}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
                   sortMode === 'popularity'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
@@ -261,7 +263,7 @@ export default function Scroll() {
               </button>
               <button
                 onClick={() => setSortMode('recent')}
-                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
                   sortMode === 'recent'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
