@@ -25,7 +25,11 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
     <div className="paper-card paper-card-hover rounded-xl overflow-hidden group">
       <div className="flex h-full">
         {/* Cover Image */}
-        <div className="w-24 sm:w-28 shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5">
+        <div
+          className={`shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5 ${
+            viewPreset === 'compact' ? 'w-16 sm:w-20' : 'w-24 sm:w-28'
+          }`}
+        >
           <img 
             src={entry.cover} 
             alt={entry.title} 
@@ -176,41 +180,92 @@ export default function Scroll() {
       : (['reading', 'completed', 'planned', 'dropped'] as const);
 
   const gridColsClass =
-    viewPreset === 'compact'
-      ? 'sm:grid-cols-3 xl:grid-cols-4'
-      : viewPreset === 'detail'
+    viewPreset === 'compact' || viewPreset === 'detail'
       ? 'sm:grid-cols-1'
       : 'sm:grid-cols-2';
 
   return (
     <div className="scroll-unroll space-y-5">
       {/* Header */}
-      <div className="flex flex-col items-center gap-3 text-center">
-        <h1 className="font-serif-jp text-2xl font-bold text-ink flex items-center gap-2">
-          <BookOpen size={24} className="text-vermillion" />
-          My Scroll
-        </h1>
-        <p className="text-sm text-ink-muted">
-          Your anime & manga tracking — every story you've unrolled
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="font-serif-jp text-2xl font-bold text-ink flex items-center gap-2">
+            <BookOpen size={24} className="text-vermillion" />
+            My Scroll
+          </h1>
+          <p className="text-sm text-ink-muted mt-0.5">
+            Your anime & manga tracking — every story you've unrolled
+          </p>
+        </div>
 
-        {/* Anime / Manga pill */}
-        <div className="mt-1">
-          <div className="flex rounded-full bg-ink/5 px-1 py-1">
-            {(['anime', 'manga'] as const).map(t => (
+        <div className="flex items-center gap-3 flex-wrap justify-end">
+          {/* Anime / Manga pill */}
+          <div className="rounded-full bg-ink/5 px-1 py-1 shadow-sm">
+            <div className="flex">
+              {(['anime', 'manga'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => {
+                    setTypeFilter(t);
+                    setStatusFilter('all');
+                  }}
+                  className={`rounded-full px-4 py-1.5 text-sm font-semibold tracking-tight transition-all ${
+                    typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
+                  }`}
+                >
+                  {t === 'anime' ? '🎬 Anime' : '📖 Manga'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Arrange block inline */}
+          <div className="paper-card rounded-xl px-3 py-2 space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
+              Arrange
+            </p>
+            <div className="flex gap-1">
               <button
-                key={t}
-                onClick={() => {
-                  setTypeFilter(t);
-                  setStatusFilter('all');
-                }}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                  typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
+                onClick={() => setSortMode('default')}
+                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                  sortMode === 'default'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                {t === 'anime' ? '🎬 Anime' : '📖 Manga'}
+                Title
               </button>
-            ))}
+              <button
+                onClick={() => setSortMode('score')}
+                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                  sortMode === 'score'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Score
+              </button>
+              <button
+                onClick={() => setSortMode('progress')}
+                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                  sortMode === 'progress'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Progress
+              </button>
+              <button
+                onClick={() => setSortMode('recent')}
+                className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
+                  sortMode === 'recent'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Recent
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -304,53 +359,6 @@ export default function Scroll() {
             )}
           </div>
 
-          <div className="paper-card rounded-xl p-2.5 space-y-2">
-            <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
-              Arrange
-            </p>
-            <div className="flex md:flex-col gap-1">
-              <button
-                onClick={() => setSortMode('default')}
-                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  sortMode === 'default'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                By title
-              </button>
-              <button
-                onClick={() => setSortMode('score')}
-                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  sortMode === 'score'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                By score
-              </button>
-              <button
-                onClick={() => setSortMode('progress')}
-                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  sortMode === 'progress'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                By progress
-              </button>
-              <button
-                onClick={() => setSortMode('recent')}
-                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  sortMode === 'recent'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                Recently started
-              </button>
-            </div>
-          </div>
         </aside>
 
         {/* Main content */}
