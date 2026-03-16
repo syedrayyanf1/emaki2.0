@@ -201,7 +201,7 @@ export default function Scroll() {
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
           {/* Anime / Manga pill */}
-          <div className="paper-card rounded-xl px-3 py-2">
+          <div className="paper-card rounded-xl px-3 py-2 min-w-[220px]">
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold mb-1">
               Mode
             </p>
@@ -224,7 +224,7 @@ export default function Scroll() {
           </div>
 
           {/* Arrange block inline */}
-          <div className="paper-card rounded-xl px-3 py-2 space-y-1">
+          <div className="paper-card rounded-xl px-3 py-2 min-w-[220px] space-y-1">
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
               Arrange
             </p>
