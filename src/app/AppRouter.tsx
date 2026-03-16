@@ -9,7 +9,7 @@ import Discovery from '../features/discovery/DiscoveryPage';
 import Extras from '../features/extras/ExtrasPage';
 import Landing from '../features/landing/LandingPage';
 
-export function App() {
+export function AppRouter() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleAuth = () => {
