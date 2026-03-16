@@ -138,6 +138,7 @@ export default function Scroll() {
   const [viewPreset, setViewPreset] = useState<ViewPreset>('compact');
   const [sortMode, setSortMode] = useState<SortMode>('default');
   const [layoutOpen, setLayoutOpen] = useState(false);
+  const [arrangeOpen, setArrangeOpen] = useState(false);
 
   const filteredBase = ANIME_DB.filter(entry => {
     if (entry.type !== typeFilter) return false;
@@ -202,7 +203,7 @@ export default function Scroll() {
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          {/* Mode bloc */}
+          {/* Mode bloc (top-right only) */}
           <div className={`${headerBlocClass} flex flex-col gap-1`}>
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
               Mode
@@ -225,61 +226,13 @@ export default function Scroll() {
             </div>
           </div>
 
-          {/* Arrange bloc */}
-          <div className={`${headerBlocClass} flex flex-col gap-1`}>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
-              Arrange
-            </p>
-            <div className="flex rounded-full bg-ink/5 px-1 py-1">
-              <button
-                onClick={() => setSortMode('default')}
-                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
-                  sortMode === 'default'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                Title
-              </button>
-              <button
-                onClick={() => setSortMode('score')}
-                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
-                  sortMode === 'score'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                Score
-              </button>
-              <button
-                onClick={() => setSortMode('popularity')}
-                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
-                  sortMode === 'popularity'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                Popularity
-              </button>
-              <button
-                onClick={() => setSortMode('recent')}
-                className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
-                  sortMode === 'recent'
-                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
-                }`}
-              >
-                Recent
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="brushstroke-divider" />
 
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Vertical tabs + Layout */}
+        {/* Vertical tabs + Arrange + Layout */}
         <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1">
           <div className="paper-card rounded-xl p-2.5 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
@@ -321,6 +274,66 @@ export default function Scroll() {
                 );
               })}
             </div>
+          </div>
+
+          <div className="paper-card rounded-xl p-2.5 space-y-2">
+            <button
+              type="button"
+              onClick={() => setArrangeOpen(!arrangeOpen)}
+              className="w-full flex items-center justify-between text-left text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold"
+            >
+              <span>Arrange</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${arrangeOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {arrangeOpen && (
+              <div className="flex flex-col gap-1 pt-1">
+                <div className="flex rounded-full bg-ink/5 px-1 py-1">
+                  <button
+                    onClick={() => setSortMode('default')}
+                    className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'default'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Title
+                  </button>
+                  <button
+                    onClick={() => setSortMode('score')}
+                    className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'score'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Score
+                  </button>
+                  <button
+                    onClick={() => setSortMode('popularity')}
+                    className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'popularity'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Popularity
+                  </button>
+                  <button
+                    onClick={() => setSortMode('recent')}
+                    className={`flex-1 rounded-full py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'recent'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Recent
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="paper-card rounded-xl p-2.5 space-y-2">
