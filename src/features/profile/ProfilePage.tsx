@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { BookOpen, BarChart3, Users, Sparkles, Heart, ChevronDown, ChevronRight, Pin, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { USERS, CURRENT_USER_ID, ANIME_DB, POSTS, getCoverGradient } from '../data/mockData';
+import { USERS, CURRENT_USER_ID, ANIME_DB, POSTS, getCoverGradient } from '../../mock/mockData';
 
 const SIDE_SECTIONS = [
   { key: 'scroll', label: 'Scroll', icon: BookOpen },

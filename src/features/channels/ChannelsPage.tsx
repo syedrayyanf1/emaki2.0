@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Hash, MessageSquare, Lightbulb, Zap, Flame, ThumbsUp, ThumbsDown, Filter, Eye, EyeOff } from 'lucide-react';
-import { POSTS, ANIME_DB, getCoverGradient, type Post } from '../data/mockData';
+import { POSTS, ANIME_DB, getCoverGradient, type Post } from '../../mock/mockData';
 
 type ChannelType = 'all' | 'episode' | 'analysis' | 'recommendations' | 'hot-takes';
 

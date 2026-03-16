@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Star, Clock, CheckCircle, XCircle, BookmarkPlus, Film, BookOpen, Timer, ChevronDown } from 'lucide-react';
-import { ANIME_DB, getCoverGradient, type AnimeEntry } from '../data/mockData';
+import { ANIME_DB, getCoverGradient, type AnimeEntry } from '../../mock/mockData';
 
 type StatusFilter = 'all' | 'watching' | 'reading' | 'completed' | 'dropped' | 'planned';
 type TypeFilter = 'all' | 'anime' | 'manga';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Compass, ArrowRight, ThumbsUp, ThumbsDown, Sparkles, BookOpen } from 'lucide-react';
-import { RECOMMENDATION_CHAINS, EMAKI_PICKS, getCoverGradient, type RecommendationChain } from '../data/mockData';
+import { RECOMMENDATION_CHAINS, EMAKI_PICKS, getCoverGradient, type RecommendationChain } from '../../mock/mockData';
 
 function RecCard({ rec }: { rec: RecommendationChain }) {
   const [agrees, setAgrees] = useState(rec.agrees);

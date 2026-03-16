@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { User, BookOpen, MessageSquare, Compass, Cherry, Gift, Menu, X } from 'lucide-react';
-import { USER_PROFILE, RANKS } from '../data/mockData';
+import { USER_PROFILE, RANKS } from '../mock/mockData';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Profile', icon: User },

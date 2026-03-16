@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, LogIn, UserPlus } from 'lucide-react';
-import { ANIME_DB } from '../data/mockData';
+import { ANIME_DB } from '../../mock/mockData';
 
 interface LandingProps {
   onAuth: () => void;

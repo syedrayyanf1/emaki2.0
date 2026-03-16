@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
-import Profile from './pages/Profile';
-import Scroll from './pages/Scroll';
-import Channels from './pages/Channels';
-import Seasonal from './pages/Seasonal';
-import Discovery from './pages/Discovery';
-import Extras from './pages/Extras';
-import Landing from './pages/Landing';
+import Layout from '../layout/Layout';
+import Profile from '../features/profile/ProfilePage';
+import Scroll from '../features/scroll/ScrollPage';
+import Channels from '../features/channels/ChannelsPage';
+import Seasonal from '../features/seasonal/SeasonalPage';
+import Discovery from '../features/discovery/DiscoveryPage';
+import Extras from '../features/extras/ExtrasPage';
+import Landing from '../features/landing/LandingPage';
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

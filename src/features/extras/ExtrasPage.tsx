@@ -1,5 +1,5 @@
 import { Gift, Star, Clock, Flame, Quote, Download, BookOpen, Film, Trophy, Heart } from 'lucide-react';
-import { ANIME_DB, getCoverGradient, USER_PROFILE } from '../data/mockData';
+import { ANIME_DB, getCoverGradient, USER_PROFILE } from '../../mock/mockData';
 
 const echoes = ANIME_DB.filter(a => a.echo);
 
