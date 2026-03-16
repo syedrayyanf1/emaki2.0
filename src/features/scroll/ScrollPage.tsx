@@ -48,7 +48,13 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <h3 className="text-sm font-bold text-ink dark:text-cream truncate leading-tight group-hover:text-vermillion transition-colors">{entry.title}</h3>
+                <h3
+                  className={`font-bold text-ink dark:text-cream truncate leading-tight group-hover:text-vermillion transition-colors ${
+                    viewPreset === 'compact' ? 'text-[11px]' : 'text-sm'
+                  }`}
+                >
+                  {entry.title}
+                </h3>
                 <span className="text-[10px] text-ink-muted dark:text-cream-muted font-serif-jp">{entry.titleJp}</span>
               </div>
               <div className="flex items-center gap-1 shrink-0 bg-ink/5 dark:bg-white/5 px-1.5 py-0.5 rounded-full">
@@ -146,21 +152,28 @@ export default function Scroll() {
       ? (['watching', 'completed', 'planned', 'dropped'] as const)
       : (['reading', 'completed', 'planned', 'dropped'] as const);
 
+  const gridColsClass =
+    viewPreset === 'compact'
+      ? 'sm:grid-cols-3 xl:grid-cols-4'
+      : viewPreset === 'detail'
+      ? 'sm:grid-cols-1'
+      : 'sm:grid-cols-2';
+
   return (
     <div className="scroll-unroll space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="font-serif-jp text-2xl font-bold text-ink flex items-center gap-2">
-            <BookOpen size={24} className="text-vermillion" />
-            My Scroll
-          </h1>
-          <p className="text-sm text-ink-muted mt-0.5">Your anime & manga tracking — every story you've unrolled</p>
-        </div>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <h1 className="font-serif-jp text-2xl font-bold text-ink flex items-center gap-2">
+          <BookOpen size={24} className="text-vermillion" />
+          My Scroll
+        </h1>
+        <p className="text-sm text-ink-muted">
+          Your anime & manga tracking — every story you've unrolled
+        </p>
 
         {/* Anime / Manga pill */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex rounded-lg bg-ink/5 p-0.5">
+        <div className="mt-1">
+          <div className="flex rounded-full bg-ink/5 px-1 py-1">
             {(['anime', 'manga'] as const).map(t => (
               <button
                 key={t}
@@ -168,7 +181,7 @@ export default function Scroll() {
                   setTypeFilter(t);
                   setStatusFilter('all');
                 }}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-all ${
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                   typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
                 }`}
               >
@@ -182,46 +195,8 @@ export default function Scroll() {
       <div className="brushstroke-divider" />
 
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Main content */}
-        <div className="flex-1 space-y-5">
-          {/* Grouped entries */}
-          {statusFilter === 'all' ? (
-            groupedByStatus.map(status => {
-              const entries = filtered.filter(e => e.status === status);
-              if (entries.length === 0) return null;
-              const conf = STATUS_CONFIG[status];
-              const Icon = conf.icon;
-              return (
-                <div key={status} className="scroll-unroll scroll-unroll-delay-2">
-                  <h2 className="font-serif-jp text-base font-semibold text-ink mb-3 flex items-center gap-2">
-                    <Icon size={16} className={conf.color} />
-                    {conf.label} <span className="text-xs text-ink-muted font-normal">({entries.length})</span>
-                  </h2>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {entries.map(entry => (
-                      <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
-                    ))}
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 scroll-unroll scroll-unroll-delay-1">
-              {filtered.map(entry => (
-                <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
-              ))}
-              {filtered.length === 0 && (
-                <div className="col-span-2 text-center py-12 text-ink-muted">
-                  <Film size={32} className="mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No entries found for this filter.</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Vertical tabs + Config */}
-        <aside className="w-full md:w-56 shrink-0 space-y-4">
+        {/* Vertical tabs + Layout */}
+        <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1">
           <div className="paper-card rounded-xl p-3 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
               {typeFilter === 'anime' ? 'Anime Status' : 'Manga Status'}
@@ -260,7 +235,7 @@ export default function Scroll() {
 
           <div className="paper-card rounded-xl p-3 space-y-3">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
-              Config
+              Layout
             </p>
             <div className="flex md:flex-col gap-1">
               <button
@@ -271,9 +246,9 @@ export default function Scroll() {
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Standard layout
+                Gallery cards
                 <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Balanced cards with key details.
+                  Classic two-column cards with cover, status, and notes.
                 </span>
               </button>
               <button
@@ -284,9 +259,9 @@ export default function Scroll() {
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Compact shelf
+                Compact grid
                 <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Tighter rows for overview browsing.
+                  Smaller cards in a denser grid so more titles fit on screen.
                 </span>
               </button>
               <button
@@ -297,14 +272,52 @@ export default function Scroll() {
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Detailed scroll
+                Reading log
                 <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Always show notes, echoes, and timeline.
+                  Single-column list that always shows notes, echoes, and timeline.
                 </span>
               </button>
             </div>
           </div>
         </aside>
+
+        {/* Main content */}
+        <div className="flex-1 space-y-5">
+          {/* Grouped entries */}
+          {statusFilter === 'all' ? (
+            groupedByStatus.map(status => {
+              const entries = filtered.filter(e => e.status === status);
+              if (entries.length === 0) return null;
+              const conf = STATUS_CONFIG[status];
+              const Icon = conf.icon;
+              return (
+                <div key={status} className="scroll-unroll scroll-unroll-delay-2">
+                  <h2 className="font-serif-jp text-base font-semibold text-ink mb-3 flex items-center gap-2">
+                    <Icon size={16} className={conf.color} />
+                    {conf.label} <span className="text-xs text-ink-muted font-normal">({entries.length})</span>
+                  </h2>
+                  <div className={`grid gap-3 ${gridColsClass}`}>
+                    {entries.map(entry => (
+                      <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className={`grid gap-3 scroll-unroll scroll-unroll-delay-1 ${gridColsClass}`}>
+              {filtered.map(entry => (
+                <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
+              ))}
+              {filtered.length === 0 && (
+                <div className="col-span-2 text-center py-12 text-ink-muted">
+                  <Film size={32} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No entries found for this filter.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
