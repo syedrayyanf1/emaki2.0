@@ -3,7 +3,7 @@ import { Star, Clock, CheckCircle, XCircle, BookmarkPlus, Film, BookOpen, Timer,
 import { ANIME_DB, getCoverGradient, type AnimeEntry } from '../../mock/mockData';
 
 type StatusFilter = 'all' | 'watching' | 'reading' | 'completed' | 'dropped' | 'planned';
-type TypeFilter = 'all' | 'anime' | 'manga';
+type TypeFilter = 'anime' | 'manga';
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   watching: { label: 'Watching', icon: Clock, color: 'text-indigo-accent' },
@@ -13,7 +13,9 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; co
   planned: { label: 'Planned', icon: BookmarkPlus, color: 'text-gold' },
 };
 
-function EntryCard({ entry }: { entry: AnimeEntry }) {
+type ViewPreset = 'standard' | 'compact' | 'detail';
+
+function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewPreset }) {
   const [expanded, setExpanded] = useState(false);
   const statusConf = STATUS_CONFIG[entry.status];
   const StatusIcon = statusConf.icon;
@@ -22,7 +24,7 @@ function EntryCard({ entry }: { entry: AnimeEntry }) {
     <div className="paper-card paper-card-hover rounded-xl overflow-hidden group">
       <div className="flex h-full">
         {/* Cover Image */}
-        <div className="w-24 sm:w-28 shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5">
+        <div className={`${viewPreset === 'compact' ? 'w-20 sm:w-24' : 'w-24 sm:w-28'} shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5`}>
           <img 
             src={entry.cover} 
             alt={entry.title} 
@@ -42,7 +44,7 @@ function EntryCard({ entry }: { entry: AnimeEntry }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
+        <div className={`flex-1 min-w-0 flex flex-col justify-between ${viewPreset === 'compact' ? 'p-2.5' : 'p-3'}`}>
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -68,18 +70,6 @@ function EntryCard({ entry }: { entry: AnimeEntry }) {
               </span>
             </div>
 
-            {/* Airing indicator */}
-            {entry.airing && (
-              <div className="mt-2 flex items-center gap-1.5 bg-vermillion/5 dark:bg-vermillion/10 w-fit px-2 py-0.5 rounded-md">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vermillion opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-vermillion"></span>
-                </span>
-                <span className="text-[9px] text-vermillion font-bold">
-                  {entry.type === 'manga' ? 'Ch' : 'Ep'} {entry.nextEpisode} — {entry.nextEpisodeDate}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="mt-3">
@@ -91,22 +81,26 @@ function EntryCard({ entry }: { entry: AnimeEntry }) {
                   <span className="font-bold text-ink dark:text-cream">{entry.rating}</span>
                 </span>
               )}
-              <div className="flex gap-1">
-                {entry.genres.slice(0, 2).map(g => (
-                  <span key={g} className="rounded bg-ink/5 dark:bg-white/5 px-1.5 py-0.5 text-[9px] text-ink-muted dark:text-cream-muted font-medium">{g}</span>
-                ))}
-              </div>
+              {viewPreset !== 'compact' && (
+                <div className="flex gap-1">
+                  {entry.genres.slice(0, 2).map(g => (
+                    <span key={g} className="rounded bg-ink/5 dark:bg-white/5 px-1.5 py-0.5 text-[9px] text-ink-muted dark:text-cream-muted font-medium">{g}</span>
+                  ))}
+                </div>
+              )}
               
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="ml-auto flex items-center gap-0.5 text-[10px] font-bold text-vermillion hover:opacity-80 transition-opacity"
-              >
-                {expanded ? 'LESS' : 'MORE'}
-                <ChevronDown size={12} className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
-              </button>
+              {viewPreset !== 'detail' && (
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="ml-auto flex items-center gap-0.5 text-[10px] font-bold text-vermillion hover:opacity-80 transition-opacity"
+                >
+                  {expanded ? 'LESS' : 'MORE'}
+                  <ChevronDown size={12} className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+                </button>
+              )}
             </div>
 
-            {expanded && (
+            {(expanded || viewPreset === 'detail') && (
               <div className="mt-3 space-y-2 text-[11px] border-t border-[#e8dfd2] dark:border-white/10 pt-2 animate-in fade-in slide-in-from-top-1">
                 {entry.startDate && (
                   <div className="flex gap-4">
@@ -136,15 +130,21 @@ function EntryCard({ entry }: { entry: AnimeEntry }) {
 
 export default function Scroll() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('anime');
+  const [viewPreset, setViewPreset] = useState<ViewPreset>('standard');
 
   const filtered = ANIME_DB.filter(entry => {
+    if (entry.type !== typeFilter) return false;
     if (statusFilter !== 'all' && entry.status !== statusFilter) return false;
-    if (typeFilter !== 'all' && entry.type !== typeFilter) return false;
     return true;
   });
 
   const groupedByStatus = ['watching', 'reading', 'completed', 'planned', 'dropped'] as const;
+
+  const visibleStatusTabs =
+    typeFilter === 'anime'
+      ? (['watching', 'completed', 'planned', 'dropped'] as const)
+      : (['reading', 'completed', 'planned', 'dropped'] as const);
 
   return (
     <div className="scroll-unroll space-y-5">
@@ -158,31 +158,21 @@ export default function Scroll() {
           <p className="text-sm text-ink-muted mt-0.5">Your anime & manga tracking — every story you've unrolled</p>
         </div>
 
-        {/* Filters */}
+        {/* Anime / Manga pill */}
         <div className="flex items-center gap-2 flex-wrap">
           <div className="flex rounded-lg bg-ink/5 p-0.5">
-            {(['all', 'anime', 'manga'] as const).map(t => (
+            {(['anime', 'manga'] as const).map(t => (
               <button
                 key={t}
-                onClick={() => setTypeFilter(t)}
+                onClick={() => {
+                  setTypeFilter(t);
+                  setStatusFilter('all');
+                }}
                 className={`rounded-md px-3 py-1 text-xs font-medium transition-all ${
                   typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
                 }`}
               >
-                {t === 'all' ? 'All' : t === 'anime' ? '🎬 Anime' : '📖 Manga'}
-              </button>
-            ))}
-          </div>
-          <div className="flex rounded-lg bg-ink/5 p-0.5 flex-wrap">
-            {(['all', 'watching', 'reading', 'completed', 'dropped', 'planned'] as const).map(s => (
-              <button
-                key={s}
-                onClick={() => setStatusFilter(s)}
-                className={`rounded-md px-2.5 py-1 text-[10px] font-medium transition-all ${
-                  statusFilter === s ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                {t === 'anime' ? '🎬 Anime' : '📖 Manga'}
               </button>
             ))}
           </div>
@@ -191,58 +181,131 @@ export default function Scroll() {
 
       <div className="brushstroke-divider" />
 
-      {/* Currently Airing Highlight */}
-      {statusFilter === 'all' && (
-        <div className="scroll-unroll scroll-unroll-delay-1">
-          <h2 className="font-serif-jp text-base font-semibold text-ink mb-3 flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-vermillion opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-vermillion"></span>
-            </span>
-            Currently Airing
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {ANIME_DB.filter(a => a.airing && (a.status === 'watching' || a.status === 'reading')).map(entry => (
-              <EntryCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Grouped entries */}
-      {statusFilter === 'all' ? (
-        groupedByStatus.map(status => {
-          const entries = filtered.filter(e => e.status === status);
-          if (entries.length === 0) return null;
-          const conf = STATUS_CONFIG[status];
-          const Icon = conf.icon;
-          return (
-            <div key={status} className="scroll-unroll scroll-unroll-delay-2">
-              <h2 className="font-serif-jp text-base font-semibold text-ink mb-3 flex items-center gap-2">
-                <Icon size={16} className={conf.color} />
-                {conf.label} <span className="text-xs text-ink-muted font-normal">({entries.length})</span>
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {entries.map(entry => (
-                  <EntryCard key={entry.id} entry={entry} />
-                ))}
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <div className="grid gap-3 sm:grid-cols-2 scroll-unroll scroll-unroll-delay-1">
-          {filtered.map(entry => (
-            <EntryCard key={entry.id} entry={entry} />
-          ))}
-          {filtered.length === 0 && (
-            <div className="col-span-2 text-center py-12 text-ink-muted">
-              <Film size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No entries found for this filter.</p>
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main content */}
+        <div className="flex-1 space-y-5">
+          {/* Grouped entries */}
+          {statusFilter === 'all' ? (
+            groupedByStatus.map(status => {
+              const entries = filtered.filter(e => e.status === status);
+              if (entries.length === 0) return null;
+              const conf = STATUS_CONFIG[status];
+              const Icon = conf.icon;
+              return (
+                <div key={status} className="scroll-unroll scroll-unroll-delay-2">
+                  <h2 className="font-serif-jp text-base font-semibold text-ink mb-3 flex items-center gap-2">
+                    <Icon size={16} className={conf.color} />
+                    {conf.label} <span className="text-xs text-ink-muted font-normal">({entries.length})</span>
+                  </h2>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {entries.map(entry => (
+                      <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 scroll-unroll scroll-unroll-delay-1">
+              {filtered.map(entry => (
+                <EntryCard key={entry.id} entry={entry} viewPreset={viewPreset} />
+              ))}
+              {filtered.length === 0 && (
+                <div className="col-span-2 text-center py-12 text-ink-muted">
+                  <Film size={32} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No entries found for this filter.</p>
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+
+        {/* Vertical tabs + Config */}
+        <aside className="w-full md:w-56 shrink-0 space-y-4">
+          <div className="paper-card rounded-xl p-3 space-y-2">
+            <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
+              {typeFilter === 'anime' ? 'Anime Status' : 'Manga Status'}
+            </p>
+            <div className="flex md:flex-col gap-1">
+              <button
+                onClick={() => setStatusFilter('all')}
+                className={`flex-1 text-left rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+                  statusFilter === 'all'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                All {typeFilter === 'anime' ? 'Anime' : 'Manga'}
+              </button>
+              {visibleStatusTabs.map(s => {
+                const conf = STATUS_CONFIG[s];
+                const Icon = conf.icon;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setStatusFilter(s)}
+                    className={`flex-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+                      statusFilter === s
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon size={12} className={conf.color} />
+                    <span>{conf.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="paper-card rounded-xl p-3 space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
+              Config
+            </p>
+            <div className="flex md:flex-col gap-1">
+              <button
+                onClick={() => setViewPreset('standard')}
+                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
+                  viewPreset === 'standard'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Standard layout
+                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
+                  Balanced cards with key details.
+                </span>
+              </button>
+              <button
+                onClick={() => setViewPreset('compact')}
+                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
+                  viewPreset === 'compact'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Compact shelf
+                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
+                  Tighter rows for overview browsing.
+                </span>
+              </button>
+              <button
+                onClick={() => setViewPreset('detail')}
+                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
+                  viewPreset === 'detail'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Detailed scroll
+                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
+                  Always show notes, echoes, and timeline.
+                </span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
