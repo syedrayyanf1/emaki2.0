@@ -14,13 +14,10 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; co
 };
 
 type ViewPreset = 'standard' | 'compact' | 'detail';
-type SortMode = 'default' | 'score' | 'progress' | 'recent';
+type SortMode = 'default' | 'score' | 'popularity' | 'recent';
 
 function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewPreset }) {
   const [expanded, setExpanded] = useState(false);
-  const statusConf = STATUS_CONFIG[entry.status];
-  const StatusIcon = statusConf.icon;
-
   return (
     <div className="paper-card paper-card-hover rounded-xl overflow-hidden group">
       <div className="flex h-full">
@@ -61,10 +58,6 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
                   {entry.title}
                 </h3>
                 <span className="text-[10px] text-ink-muted dark:text-cream-muted font-serif-jp">{entry.titleJp}</span>
-              </div>
-              <div className="flex items-center gap-1 shrink-0 bg-ink/5 dark:bg-white/5 px-1.5 py-0.5 rounded-full">
-                <StatusIcon size={12} className={statusConf.color} />
-                <span className={`text-[9px] font-bold uppercase tracking-tight ${statusConf.color}`}>{statusConf.label}</span>
               </div>
             </div>
 
@@ -144,7 +137,7 @@ export default function Scroll() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('anime');
   const [viewPreset, setViewPreset] = useState<ViewPreset>('compact');
   const [sortMode, setSortMode] = useState<SortMode>('default');
-  const [layoutOpen, setLayoutOpen] = useState(true);
+  const [layoutOpen, setLayoutOpen] = useState(false);
 
   const filteredBase = ANIME_DB.filter(entry => {
     if (entry.type !== typeFilter) return false;
@@ -158,9 +151,6 @@ export default function Scroll() {
       const br = b.rating ?? -1;
       return br - ar;
     }
-    if (sortMode === 'progress') {
-      return (b.progress ?? 0) - (a.progress ?? 0);
-    }
     if (sortMode === 'recent') {
       const ad = a.startDate ? new Date(a.startDate).getTime() : 0;
       const bd = b.startDate ? new Date(b.startDate).getTime() : 0;
@@ -173,6 +163,17 @@ export default function Scroll() {
   const filtered = [...filteredBase].sort(sortFn);
 
   const groupedByStatus = ['watching', 'reading', 'completed', 'planned', 'dropped'] as const;
+
+  const statusCounts = groupedByStatus.reduce(
+    (acc, status) => {
+      acc[status] = ANIME_DB.filter(
+        entry => entry.type === typeFilter && entry.status === status
+      ).length;
+      return acc;
+    },
+    {} as Record<(typeof groupedByStatus)[number], number>
+  );
+  const allCount = ANIME_DB.filter(entry => entry.type === typeFilter).length;
 
   const visibleStatusTabs =
     typeFilter === 'anime'
@@ -200,8 +201,11 @@ export default function Scroll() {
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
           {/* Anime / Manga pill */}
-          <div className="rounded-full bg-ink/5 px-1 py-1 shadow-sm">
-            <div className="flex">
+          <div className="paper-card rounded-xl px-3 py-2">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold mb-1">
+              Mode
+            </p>
+            <div className="flex rounded-full bg-ink/5 px-1 py-1">
               {(['anime', 'manga'] as const).map(t => (
                 <button
                   key={t}
@@ -246,14 +250,14 @@ export default function Scroll() {
                 Score
               </button>
               <button
-                onClick={() => setSortMode('progress')}
+                onClick={() => setSortMode('popularity')}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-medium transition-all ${
-                  sortMode === 'progress'
+                  sortMode === 'popularity'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Progress
+                Popularity
               </button>
               <button
                 onClick={() => setSortMode('recent')}
@@ -288,7 +292,8 @@ export default function Scroll() {
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                All {typeFilter === 'anime' ? 'Anime' : 'Manga'}
+                All {typeFilter === 'anime' ? 'Anime' : 'Manga'}{' '}
+                <span className="text-[10px] text-ink-muted dark:text-cream-muted">({allCount})</span>
               </button>
               {visibleStatusTabs.map(s => {
                 const conf = STATUS_CONFIG[s];
@@ -297,14 +302,19 @@ export default function Scroll() {
                   <button
                     key={s}
                     onClick={() => setStatusFilter(s)}
-                    className={`flex-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
+                    className={`flex-1 flex items-center justify-between gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all ${
                       statusFilter === s
                         ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                         : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <Icon size={12} className={conf.color} />
-                    <span>{conf.label}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Icon size={12} className={conf.color} />
+                      <span>{conf.label}</span>
+                    </span>
+                    <span className="text-[10px] text-ink-muted dark:text-cream-muted">
+                      ({statusCounts[s] ?? 0})
+                    </span>
                   </button>
                 );
               })}
