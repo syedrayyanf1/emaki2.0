@@ -14,6 +14,7 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; co
 };
 
 type ViewPreset = 'standard' | 'compact' | 'detail';
+type SortMode = 'default' | 'score' | 'progress' | 'recent';
 
 function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewPreset }) {
   const [expanded, setExpanded] = useState(false);
@@ -24,7 +25,7 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
     <div className="paper-card paper-card-hover rounded-xl overflow-hidden group">
       <div className="flex h-full">
         {/* Cover Image */}
-        <div className={`${viewPreset === 'compact' ? 'w-20 sm:w-24' : 'w-24 sm:w-28'} shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5`}>
+        <div className="w-24 sm:w-28 shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5">
           <img 
             src={entry.cover} 
             alt={entry.title} 
@@ -44,7 +45,7 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
         </div>
 
         {/* Content */}
-        <div className={`flex-1 min-w-0 flex flex-col justify-between ${viewPreset === 'compact' ? 'p-2.5' : 'p-3'}`}>
+        <div className={`flex-1 min-w-0 flex flex-col justify-between ${viewPreset === 'compact' ? 'p-2' : 'p-3'}`}>
           <div>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -137,13 +138,35 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
 export default function Scroll() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('anime');
-  const [viewPreset, setViewPreset] = useState<ViewPreset>('standard');
+  const [viewPreset, setViewPreset] = useState<ViewPreset>('compact');
+  const [sortMode, setSortMode] = useState<SortMode>('default');
+  const [layoutOpen, setLayoutOpen] = useState(true);
 
-  const filtered = ANIME_DB.filter(entry => {
+  const filteredBase = ANIME_DB.filter(entry => {
     if (entry.type !== typeFilter) return false;
     if (statusFilter !== 'all' && entry.status !== statusFilter) return false;
     return true;
   });
+
+  const sortFn = (a: AnimeEntry, b: AnimeEntry) => {
+    if (sortMode === 'score') {
+      const ar = a.rating ?? -1;
+      const br = b.rating ?? -1;
+      return br - ar;
+    }
+    if (sortMode === 'progress') {
+      return (b.progress ?? 0) - (a.progress ?? 0);
+    }
+    if (sortMode === 'recent') {
+      const ad = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const bd = b.startDate ? new Date(b.startDate).getTime() : 0;
+      return bd - ad;
+    }
+    // default: title A-Z
+    return a.title.localeCompare(b.title);
+  };
+
+  const filtered = [...filteredBase].sort(sortFn);
 
   const groupedByStatus = ['watching', 'reading', 'completed', 'planned', 'dropped'] as const;
 
@@ -197,7 +220,7 @@ export default function Scroll() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Vertical tabs + Layout */}
         <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1">
-          <div className="paper-card rounded-xl p-3 space-y-2">
+          <div className="paper-card rounded-xl p-2.5 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
               {typeFilter === 'anime' ? 'Anime Status' : 'Manga Status'}
             </p>
@@ -233,49 +256,98 @@ export default function Scroll() {
             </div>
           </div>
 
-          <div className="paper-card rounded-xl p-3 space-y-3">
+          <div className="paper-card rounded-xl p-2.5 space-y-2">
+            <button
+              type="button"
+              onClick={() => setLayoutOpen(!layoutOpen)}
+              className="w-full flex items-center justify-between text-left text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold"
+            >
+              <span>Layout</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${layoutOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {layoutOpen && (
+              <div className="flex md:flex-col gap-1 pt-1">
+                <button
+                  onClick={() => setViewPreset('compact')}
+                  className={`rounded-lg px-2 py-1.5 text-[11px] font-medium text-left transition-all ${
+                    viewPreset === 'compact'
+                      ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                      : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                  }`}
+                >
+                  Compact grid
+                </button>
+                <button
+                  onClick={() => setViewPreset('standard')}
+                  className={`rounded-lg px-2 py-1.5 text-[11px] font-medium text-left transition-all ${
+                    viewPreset === 'standard'
+                      ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                      : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                  }`}
+                >
+                  Gallery cards
+                </button>
+                <button
+                  onClick={() => setViewPreset('detail')}
+                  className={`rounded-lg px-2 py-1.5 text-[11px] font-medium text-left transition-all ${
+                    viewPreset === 'detail'
+                      ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                      : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                  }`}
+                >
+                  Reading log
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="paper-card rounded-xl p-2.5 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
-              Layout
+              Arrange
             </p>
             <div className="flex md:flex-col gap-1">
               <button
-                onClick={() => setViewPreset('standard')}
+                onClick={() => setSortMode('default')}
                 className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  viewPreset === 'standard'
+                  sortMode === 'default'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Gallery cards
-                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Classic two-column cards with cover, status, and notes.
-                </span>
+                By title
               </button>
               <button
-                onClick={() => setViewPreset('compact')}
+                onClick={() => setSortMode('score')}
                 className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  viewPreset === 'compact'
+                  sortMode === 'score'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Compact grid
-                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Smaller cards in a denser grid so more titles fit on screen.
-                </span>
+                By score
               </button>
               <button
-                onClick={() => setViewPreset('detail')}
+                onClick={() => setSortMode('progress')}
                 className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
-                  viewPreset === 'detail'
+                  sortMode === 'progress'
                     ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                Reading log
-                <span className="block text-[10px] text-ink-muted dark:text-cream-muted font-normal">
-                  Single-column list that always shows notes, echoes, and timeline.
-                </span>
+                By progress
+              </button>
+              <button
+                onClick={() => setSortMode('recent')}
+                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-left transition-all ${
+                  sortMode === 'recent'
+                    ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                }`}
+              >
+                Recently started
               </button>
             </div>
           </div>
