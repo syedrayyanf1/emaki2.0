@@ -233,7 +233,7 @@ export default function Scroll() {
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Vertical tabs + Arrange + Layout */}
-        <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1">
+        <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1 sticky top-6 self-start">
           <div className="paper-card rounded-xl p-2.5 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
               {typeFilter === 'anime' ? 'Anime Status' : 'Manga Status'}

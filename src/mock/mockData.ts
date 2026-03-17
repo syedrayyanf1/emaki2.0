@@ -98,6 +98,31 @@ export interface EmakiPick {
   entries: { title: string; cover: string }[];
 }
 
+export interface ProfileStats {
+  entries: number;
+  completed: number;
+  planning: number;
+}
+
+export interface FavoriteCharacter {
+  id: string;
+  name: string;
+  series: string;
+}
+
+export interface MockProfile {
+  id: string;
+  username: string;
+  rank: RankInfo;
+  byosha: string;
+  stats: ProfileStats;
+  featuredPosts: Post[];
+  starredEntries: AnimeEntry[];
+  favoriteCharacters: FavoriteCharacter[];
+  scrollData: AnimeEntry[];
+  joinDate: string;
+}
+
 export const COVER_COLORS = [
   'from-rose-400 to-red-600',
   'from-blue-400 to-indigo-600',
@@ -387,4 +412,65 @@ export const WATCH_CLUBS = [
   { id: 1, name: 'Frieren Rewatch Club', members: 45, currentEpisode: 12, totalEpisodes: 28, type: 'watch' as const },
   { id: 2, name: 'One Piece Catch-Up Crew', members: 23, currentEpisode: 850, totalEpisodes: null, type: 'watch' as const },
   { id: 3, name: 'Berserk First Read', members: 31, currentEpisode: 120, totalEpisodes: 374, type: 'read' as const },
+];
+
+export const mockProfiles: MockProfile[] = [
+  {
+    id: 'mangaphilosopher',
+    username: 'MangaPhilosopher',
+    rank: RANKS[6],
+    byosha: 'Seeker of truth in the inked panels. Analyzing themes that transcend paper.',
+    stats: {
+      entries: 543,
+      completed: 210,
+      planning: 42,
+    },
+    featuredPosts: POSTS.filter(p => p.userId === 'mangaphilosopher'),
+    starredEntries: ANIME_DB.filter(a => [5, 7, 10].includes(a.id)),
+    favoriteCharacters: [
+      { id: 'griffith', name: 'Griffith', series: 'Berserk' },
+      { id: 'frieren', name: 'Frieren', series: "Frieren: Beyond Journey's End" },
+      { id: 'musashi', name: 'Miyamoto Musashi', series: 'Vagabond' },
+    ],
+    scrollData: ANIME_DB.filter(a => [5, 7, 10].includes(a.id)),
+    joinDate: '2022-08-22',
+  },
+  {
+    id: 'inkblade',
+    username: 'InkBlade',
+    rank: RANKS[5],
+    byosha: 'Tracing the lines between reality and fiction. Visual storytelling enthusiast.',
+    stats: {
+      entries: 182,
+      completed: 95,
+      planning: 18,
+    },
+    featuredPosts: POSTS.filter(p => p.userId === 'inkblade'),
+    starredEntries: ANIME_DB.filter(a => [1, 3, 6, 9].includes(a.id)),
+    favoriteCharacters: [
+      { id: 'denji', name: 'Denji', series: 'Chainsaw Man' },
+      { id: 'mob', name: 'Shigeo Kageyama', series: 'Mob Psycho 100' },
+    ],
+    scrollData: ANIME_DB.filter(a => [1, 3, 6, 9].includes(a.id)),
+    joinDate: '2023-03-10',
+  },
+  {
+    id: 'artcritic',
+    username: 'ArtCritic',
+    rank: RANKS[4],
+    byosha: 'Frame by frame, stroke by stroke. Only the finest visuals survive my scroll.',
+    stats: {
+      entries: 210,
+      completed: 130,
+      planning: 27,
+    },
+    featuredPosts: POSTS.filter(p => p.userId === 'artcritic'),
+    starredEntries: ANIME_DB.filter(a => [3, 5, 8, 12].includes(a.id)),
+    favoriteCharacters: [
+      { id: 'guts', name: 'Guts', series: 'Berserk' },
+      { id: 'bocchi', name: 'Hitori Gotoh', series: 'Bocchi the Rock!' },
+    ],
+    scrollData: ANIME_DB.filter(a => [3, 5, 8, 12].includes(a.id)),
+    joinDate: '2023-06-15',
+  },
 ];
