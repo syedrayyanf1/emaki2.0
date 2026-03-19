@@ -11,6 +11,10 @@
   --color-vermillion: #c73e1d;
   --color-vermillion-light: #e85d3a;
   --color-vermillion-dark: #a03218;
+
+  /* Accent Palette */
+  --color-sage-green: #22c55e;
+  --color-sage-green-dark: #166534;
 }
 
 @layer base {
@@ -80,7 +84,8 @@
     box-shadow: 
       0 4px 20px -5px rgba(0, 0, 0, 0.3),
       inset 0 1px 1px rgba(255, 255, 255, 0.02);
-    backdrop-blur: 10px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 

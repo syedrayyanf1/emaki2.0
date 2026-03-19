@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { BookOpen, BarChart3, Users, Sparkles, Heart, ChevronDown, ChevronRight, Pin, MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { USERS, CURRENT_USER_ID, ANIME_DB, POSTS, getCoverGradient, mockProfiles, type MockProfile, type AnimeEntry } from '../../mock/mockData';
-
+import { BookOpen, BarChart3, Users, Sparkles, Heart, ChevronDown, ChevronRight, Pin, X, Star } from 'lucide-react';
+import { USERS, CURRENT_USER_ID, ANIME_DB, POSTS, mockProfiles, type MockProfile, type AnimeEntry, type FavoriteCharacter } from '../../mock/mockData';
+import { PostCard } from '../../shared/components/PostCard';
 const SIDE_SECTIONS = [
   { key: 'scroll', label: 'Scroll', icon: BookOpen },
   { key: 'stats', label: 'Stats', icon: BarChart3 },
@@ -25,15 +25,129 @@ const PROFILE_STATUS_CONFIG: Record<
   planned: { label: 'Planned', color: 'text-gold' },
 };
 
-function ProfileScrollSegment({ entries }: { entries: AnimeEntry[] }) {
+function FavouriteSection({ animanga, characters, isOwnProfile }: { animanga: AnimeEntry[], characters: FavoriteCharacter[], isOwnProfile: boolean }) {
+  const [localAnimanga, setLocalAnimanga] = useState(animanga || []);
+  const [localChara, setLocalChara] = useState(characters || []);
+
+  const removeAnime = (e: React.MouseEvent, id: number) => {
+    e.preventDefault();
+    setLocalAnimanga(prev => prev.filter(x => x.id !== id));
+  };
+  const removeChara = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setLocalChara(prev => prev.filter(x => x.id !== id));
+  };
+
+  if (localAnimanga.length === 0 && localChara.length === 0 && !isOwnProfile) return null;
+  
+  return (
+    <div className="scroll-unroll mt-6">
+      <h2 className="font-serif-jp text-xl font-bold text-ink dark:text-cream flex items-center gap-2 mb-4 tracking-tight drop-shadow-sm">
+        <Heart size={20} className="text-vermillion fill-vermillion" />
+        Favourite
+      </h2>
+
+      {/* Series Sub-Section */}
+      <h3 className="font-accent text-sm font-semibold text-ink-muted dark:text-cream-muted uppercase tracking-widest mb-3 pl-1">
+        Series
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+        {localAnimanga.map(entry => (
+          <div key={`a-${entry.id}`} className="relative group">
+            <Link 
+              to={`/entry/${entry.id}`} 
+              className="group cursor-pointer block"
+            >
+              <div className="paper-card rounded-xl overflow-hidden aspect-[2/3] mb-1.5 border-white/5 bg-night-paper/30 relative">
+                <img 
+                  src={entry.cover} 
+                  alt={entry.title} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                />
+              </div>
+              <p className="text-[10px] sm:text-[11px] font-bold text-ink dark:text-cream truncate group-hover:text-vermillion transition-colors px-1 leading-tight">
+                {entry.title}
+              </p>
+              <p className="text-[9px] text-ink-muted px-1 capitalize">{entry.type}</p>
+            </Link>
+            {isOwnProfile && (
+              <button onClick={(e) => removeAnime(e, entry.id)} className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-vermillion z-10 hover:scale-110">
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Characters Sub-Section */}
+      <h3 className="font-accent text-sm font-semibold text-ink-muted dark:text-cream-muted uppercase tracking-widest mb-3 pl-1">
+        Characters
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        {localChara.map(char => (
+          <div key={`c-${char.id}`} className="relative group">
+            <div className="group cursor-pointer block">
+              <div className="paper-card rounded-xl overflow-hidden aspect-[2/3] mb-1.5 border-white/5 bg-ink/5 flex items-center justify-center p-4 relative">
+                 <span className="font-serif-jp text-4xl text-ink-muted opacity-30">{char.name.charAt(0)}</span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] font-bold text-ink dark:text-cream truncate hover:text-vermillion transition-colors px-1 leading-tight">
+                {char.name}
+              </p>
+              <p className="text-[9px] text-ink-muted px-1 truncate">{char.series}</p>
+            </div>
+            {isOwnProfile && (
+              <button onClick={(e) => removeChara(e, char.id)} className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-vermillion z-10 hover:scale-110">
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProfileScrollSegment({ 
+  entries, 
+  cardSize, 
+  setCardSize, 
+  formattingOpen, 
+  setFormattingOpen,
+  isOwnProfile = true
+}: { 
+  entries: AnimeEntry[],
+  cardSize: 'standard' | 'compact',
+  setCardSize: (s: 'standard' | 'compact') => void,
+  formattingOpen: boolean,
+  setFormattingOpen: (b: boolean) => void,
+  isOwnProfile?: boolean
+}) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('anime');
+  const [sortMode, setSortMode] = useState<'default' | 'score' | 'popularity' | 'recent'>('default');
+  const [arrangeOpen, setArrangeOpen] = useState(false);
 
   const base = (entries ?? []).filter(entry => entry.type === typeFilter);
-  const filtered =
+  const statusFiltered =
     statusFilter === 'all'
       ? base
       : base.filter(entry => entry.status === statusFilter);
+
+  const sortFn = (a: AnimeEntry, b: AnimeEntry) => {
+    if (sortMode === 'score') {
+      const ar = a.rating ?? -1;
+      const br = b.rating ?? -1;
+      return br - ar;
+    }
+    if (sortMode === 'recent') {
+      const ad = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const bd = b.startDate ? new Date(b.startDate).getTime() : 0;
+      return bd - ad;
+    }
+    return a.title.localeCompare(b.title);
+  };
+
+  const filtered = [...statusFiltered].sort(sortFn);
 
   const groupedByStatus = ['watching', 'reading', 'completed', 'planned', 'dropped'] as const;
 
@@ -56,29 +170,31 @@ function ProfileScrollSegment({ entries }: { entries: AnimeEntry[] }) {
     <div className="scroll-unroll space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="font-serif-jp text-xl font-bold text-ink dark:text-cream flex items-center gap-2">
+          <h1 className="font-accent text-2xl font-bold text-ink dark:text-cream flex items-center gap-2 tracking-wide">
             <BookOpen size={20} className="text-vermillion" />
-            My Scroll
-          </h2>
-          <p className="text-xs text-ink-muted dark:text-cream-muted mt-0.5">
-            Anime & manga this sage is tracking
+            {isOwnProfile === false ? 'Their Scroll' : 'My Scroll'}
+          </h1>
+          <p className="text-xs text-ink-muted dark:text-cream-muted mt-1 italic font-medium opacity-60">
+            {isOwnProfile === false 
+              ? 'A majestic chronicle of stories unrolled by this user.' 
+              : 'A majestic chronicle of stories unrolled by this sage.'}
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          <div className="paper-card rounded-xl px-3 py-2 min-w-[220px] max-w-[260px]">
+          <div className="paper-card rounded-xl px-3 py-2 min-w-[240px]">
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
-              Mode
+              Scroll Type
             </p>
             <div className="flex rounded-full bg-ink/5 px-1 py-1">
               {(['anime', 'manga'] as const).map(t => (
                 <button
                   key={t}
                   onClick={() => setTypeFilter(t)}
-                  className={`flex-1 rounded-full py-1.5 text-sm font-semibold tracking-tight transition-all ${
+                  className={`flex-1 rounded-full py-1.5 text-[11px] font-bold tracking-tight transition-all ${
                     typeFilter === t ? 'bg-white text-vermillion shadow-sm' : 'text-ink-muted hover:text-ink'
                   }`}
                 >
-                  {t === 'anime' ? '🎬 Anime' : '📖 Manga'}
+                  {t === 'anime' ? '🎬 Anime Scroll' : '📖 Manga Scroll'}
                 </button>
               ))}
             </div>
@@ -129,39 +245,150 @@ function ProfileScrollSegment({ entries }: { entries: AnimeEntry[] }) {
               })}
             </div>
           </div>
+
+          <div className="paper-card rounded-xl p-2.5 space-y-2">
+            <button
+              type="button"
+              onClick={() => setArrangeOpen(!arrangeOpen)}
+              className="w-full flex items-center justify-between text-left text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold"
+            >
+              <span>Arrange</span>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${arrangeOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {arrangeOpen && (
+              <div className="flex flex-col gap-1 pt-1">
+                <div className="flex flex-wrap rounded-xl bg-ink/5 px-1 py-1">
+                  <button
+                    onClick={() => setSortMode('default')}
+                    className={`flex-1 min-w-[50%] rounded-lg py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'default'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Title
+                  </button>
+                  <button
+                    onClick={() => setSortMode('score')}
+                    className={`flex-1 min-w-[50%] rounded-lg py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'score'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Score
+                  </button>
+                  <button
+                    onClick={() => setSortMode('popularity')}
+                    className={`flex-1 min-w-[50%] rounded-lg py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'popularity'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Popularity
+                  </button>
+                  <button
+                    onClick={() => setSortMode('recent')}
+                    className={`flex-1 min-w-[50%] rounded-lg py-1.5 text-[10px] font-medium transition-all ${
+                      sortMode === 'recent'
+                        ? 'bg-cream/90 dark:bg-ink text-vermillion shadow-sm'
+                        : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    Recent
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Formatting Settings (Moved to Sidebar) */}
+          <div className="relative">
+            <button 
+              onClick={() => setFormattingOpen(!formattingOpen)}
+              className="w-full paper-card rounded-xl px-3 py-2 flex items-center justify-between text-[11px] font-bold text-ink-muted dark:text-cream-muted hover:text-vermillion transition-colors border-dashed border-2"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles size={14} className="text-vermillion" />
+                Formatting
+              </span>
+              <ChevronDown size={14} className={`transition-transform duration-300 ${formattingOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <div className={`absolute left-0 top-full mt-2 w-full paper-card rounded-xl shadow-2xl p-2 transition-all duration-300 z-50 transform origin-top ${
+              formattingOpen 
+                ? 'opacity-100 visible translate-y-0' 
+                : 'opacity-0 invisible translate-y-[-10px]'
+            }`}>
+              <p className="px-3 py-1.5 text-[9px] uppercase tracking-widest text-ink-muted dark:text-cream-muted font-black border-b border-[#e8dfd2] dark:border-white/5 mb-1">Card Style</p>
+              <button 
+                onClick={() => {
+                  setCardSize('standard');
+                  setFormattingOpen(false);
+                }}
+                className={`w-full text-left px-3 py-1.5 rounded-lg text-[10px] font-medium transition-colors ${cardSize === 'standard' ? 'bg-vermillion/10 text-vermillion' : 'hover:bg-ink/5 dark:hover:bg-white/5 text-ink-muted dark:text-cream-muted hover:text-ink'}`}
+              >
+                Standard Flow
+              </button>
+              <button 
+                onClick={() => {
+                  setCardSize('compact');
+                  setFormattingOpen(false);
+                }}
+                className={`w-full text-left px-3 py-1.5 rounded-lg text-[10px] font-medium transition-colors ${cardSize === 'compact' ? 'bg-vermillion/10 text-vermillion' : 'hover:bg-ink/5 dark:hover:bg-white/5 text-ink-muted dark:text-cream-muted hover:text-ink'}`}
+              >
+                Zen Compact
+              </button>
+            </div>
+          </div>
         </aside>
 
         <div className="flex-1 space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             {filtered.map(entry => (
-              <div key={entry.id} className="paper-card paper-card-hover rounded-xl overflow-hidden group">
+              <Link 
+                key={entry.id} 
+                to={`/entry/${entry.id}`}
+                className={`paper-card paper-card-hover rounded-xl overflow-hidden group block ${cardSize === 'compact' ? 'h-20' : 'h-28'}`}
+              >
                 <div className="flex h-full">
-                  <div className="shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5 w-24 sm:w-28">
+                  <div className={`shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5 transition-all ${
+                    cardSize === 'compact' ? 'w-16 sm:w-20' : 'w-24 sm:w-28'
+                  }`}>
                     <img
                       src={entry.cover}
                       alt={entry.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-2">
-                      <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-white/90 font-serif-jp">{entry.titleJp.charAt(0)}</span>
-                        <span className="text-[8px] opacity-80">{entry.type === 'anime' ? '🎬' : '📖'}</span>
+                    {cardSize !== 'compact' && (
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/80 to-transparent p-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] text-white/90 font-serif-jp">{entry.titleJp.charAt(0)}</span>
+                          <span className="text-[8px] opacity-80">{entry.type === 'anime' ? '🎬' : '📖'}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0 flex flex-col justify-between p-3">
+                  <div className={`flex-1 min-w-0 flex flex-col justify-between ${cardSize === 'compact' ? 'p-2' : 'p-3'}`}>
                     <div>
-                      <h3 className="font-bold text-ink dark:text-cream truncate leading-tight text-sm group-hover:text-vermillion transition-colors">
+                      <h3 className={`font-bold text-ink dark:text-cream truncate leading-tight group-hover:text-vermillion transition-colors ${
+                        cardSize === 'compact' ? 'text-xs' : 'text-sm'
+                      }`}>
                         {entry.title}
                       </h3>
-                      <span className="text-[10px] text-ink-muted dark:text-cream-muted font-serif-jp">
+                      <span className={`text-ink-muted dark:text-cream-muted font-serif-jp truncate block ${
+                        cardSize === 'compact' ? 'text-[8px]' : 'text-[10px]'
+                      }`}>
                         {entry.titleJp}
                       </span>
                     </div>
-                    <div className="mt-3 flex items-center gap-2">
-                      <div className="flex-1 h-1.5 bg-ink/5 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div className={`${cardSize === 'compact' ? 'mt-1' : 'mt-2'} flex items-center gap-2`}>
+                      <div className="flex-1 h-1 bg-ink/5 dark:bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-vermillion to-vermillion-light"
+                          className="h-full rounded-full bg-gradient-to-r from-vermillion to-vermillion-light shadow-[0_0_8px_rgba(199,62,29,0.3)]"
                           style={{
                             width: entry.totalEpisodes
                               ? `${(entry.progress / (entry.totalEpisodes || 1)) * 100}%`
@@ -169,15 +396,26 @@ function ProfileScrollSegment({ entries }: { entries: AnimeEntry[] }) {
                           }}
                         />
                       </div>
-                      <span className="text-[10px] text-ink-muted dark:text-cream-muted font-medium tabular-nums">
+                      <span className={`text-ink-muted dark:text-cream-muted font-bold tabular-nums ${
+                        cardSize === 'compact' ? 'text-[8px]' : 'text-[10px]'
+                      }`}>
                         {entry.progress}
                         {entry.totalEpisodes ? ` / ${entry.totalEpisodes}` : '+'}{' '}
                         {entry.type === 'manga' ? 'ch' : 'ep'}
                       </span>
                     </div>
+
+                    <div className={`${cardSize === 'compact' ? 'mt-1' : 'mt-1.5'} flex items-center gap-2`}>
+                      {entry.rating !== null && (
+                        <span className={`flex items-center gap-0.5 ${cardSize === 'compact' ? 'text-[9px]' : 'text-xs'}`}>
+                          <Star size={cardSize === 'compact' ? 9 : 11} className="text-gold fill-gold" />
+                          <span className="font-bold text-ink dark:text-cream">{entry.rating}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
             {filtered.length === 0 && (
               <div className="col-span-2 text-center py-12 text-ink-muted dark:text-cream-muted">
@@ -208,7 +446,9 @@ export default function Profile() {
     additions: false,
     taste: !isOwnProfile, // Hide taste section for own profile initially
   });
-  const [activeTab, setActiveTab] = useState(isOwnProfile ? 'Activity' : 'Profile');
+  const [activeTab, setActiveTab] = useState(isOwnProfile ? 'Activity' : 'Activity');
+  const [cardSize, setCardSize] = useState<'standard' | 'compact'>('standard');
+  const [formattingOpen, setFormattingOpen] = useState(false);
 
   const toggleSection = (key: string) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -219,6 +459,7 @@ export default function Profile() {
   const droppedCount = ANIME_DB.filter(a => a.status === 'dropped').length;
   const avgRating = ANIME_DB.filter(a => a.rating).reduce((sum, a) => sum + (a.rating || 0), 0) / ANIME_DB.filter(a => a.rating).length;
   const pinnedPosts = POSTS.filter(p => p.pinned);
+  const starredEntries = ANIME_DB.filter(a => a.starred);
   const profilePinnedPosts = profileData?.featuredPosts ?? POSTS.filter(p => p.userId === currentUserId && p.pinned);
   const profileRecentPosts = POSTS.filter(p => p.userId === currentUserId).slice(0, 6);
 
@@ -335,7 +576,7 @@ export default function Profile() {
       <div className="flex-1 min-w-0 space-y-5">
         {!isOwnProfile && (
           <div className="paper-card rounded-xl p-1.5 flex items-center gap-1 scroll-unroll scroll-unroll-delay-1">
-            {['Profile', 'Scroll', 'Favorites'].map((tab) => (
+            {['Activity', 'Scroll'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -355,7 +596,7 @@ export default function Profile() {
           <>
             {/* Byosha (Bio) */}
             <div className="paper-card rounded-xl p-5 scroll-unroll scroll-unroll-delay-1">
-              <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream mb-2">Byosha</h2>
+            <h2 className="font-accent text-lg font-bold text-ink dark:text-cream mb-2 tracking-wide uppercase">Byosha</h2>
               <div className="brushstroke-divider mb-3" />
               <p className="text-sm text-ink-light dark:text-cream-muted leading-relaxed whitespace-pre-line italic">
                 "{user?.bio}"
@@ -369,70 +610,31 @@ export default function Profile() {
                   <Pin size={16} className="text-vermillion" /> Featured Posts
                 </h2>
                 {pinnedPosts.map(post => (
-                  <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
-                    <div className="flex items-start gap-4">
-                      <Link to={`/profile/${post.userId}`} className="h-10 w-10 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-[12px] font-bold shrink-0 hover:scale-110 transition-transform">
-                        {post.author.substring(0, 2).toUpperCase()}
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                          <span className="text-[10px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
-                          <span className="rounded-full bg-indigo-accent/10 px-2 py-0.5 text-[10px] font-medium text-indigo-accent">{post.channel}</span>
-                          <span className="text-[10px] text-ink-muted dark:text-cream-muted">in <span className="text-vermillion/80">{post.animeTitle}</span></span>
-                        </div>
-                        <p className="mt-2 text-sm text-ink-light dark:text-cream-muted leading-relaxed">{post.content}</p>
-                        <div className="mt-3 flex items-center gap-5 text-xs text-ink-muted dark:text-cream-muted">
-                          {post.agrees !== undefined && (
-                            <>
-                              <span className="flex items-center gap-1 hover:text-sage-green cursor-pointer transition-colors"><ThumbsUp size={12} /> {post.agrees}</span>
-                              <span className="flex items-center gap-1 hover:text-vermillion cursor-pointer transition-colors"><ThumbsDown size={12} /> {post.disagrees}</span>
-                            </>
-                          )}
-                          <span className="flex items-center gap-1 hover:text-indigo-accent cursor-pointer transition-colors"><MessageSquare size={12} /> {post.replies}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <PostCard key={post.id} post={post} />
                 ))}
               </div>
             )}
 
             {/* Recent Activity */}
             <div className="space-y-3 scroll-unroll scroll-unroll-delay-3">
-              <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream">Recent Activity</h2>
+              <h2 className="font-accent text-lg font-bold text-ink dark:text-cream tracking-wide uppercase">Recent Activity</h2>
               <div className="brushstroke-divider" />
-              <div className="grid gap-3 sm:grid-cols-2">
-                {POSTS.slice(0, 6).map(post => (
-                  <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <Link to={`/profile/${post.userId}`} className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id)} flex items-center justify-center text-white text-[10px] font-bold shrink-0 hover:scale-110 transition-transform`}>
-                        {post.author.substring(0, 2).toUpperCase()}
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <Link to={`/profile/${post.userId}`} className="text-xs font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                          <span className="text-[9px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
-                        </div>
-                        <p className="mt-1 text-xs text-ink-light dark:text-cream-muted leading-relaxed line-clamp-2">{post.content}</p>
-                        <div className="mt-2 flex items-center gap-2 text-[10px] text-ink-muted dark:text-cream-muted">
-                          <span className="text-vermillion/70 font-medium truncate">{post.animeTitle}</span>
-                          {post.episode && <span>Ep. {post.episode}</span>}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              <div className="flex flex-col gap-4">
+                {profileRecentPosts.map(post => (
+                  <PostCard key={post.id} post={post} />
                 ))}
               </div>
             </div>
+
+            <FavouriteSection animanga={starredEntries} characters={user?.favoriteCharacters || []} isOwnProfile={true} />
           </>
         ) : (
           <>
-            {/* Profile Tab */}
-            {activeTab === 'Profile' && (
+            {/* Activity Tab */}
+            {activeTab === 'Activity' && (
               <>
                 <div className="paper-card rounded-xl p-5 scroll-unroll scroll-unroll-delay-1">
-                  <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream mb-2">Byosha</h2>
+                <h2 className="font-accent text-lg font-bold text-ink dark:text-cream mb-2 tracking-wide uppercase">Byosha</h2>
                   <div className="brushstroke-divider mb-3" />
                   <p className="text-sm text-ink-light dark:text-cream-muted leading-relaxed whitespace-pre-line italic">
                     "{profileData?.byosha}"
@@ -441,149 +643,48 @@ export default function Profile() {
 
                 {profilePinnedPosts && profilePinnedPosts.length > 0 && (
                   <div className="space-y-3 scroll-unroll scroll-unroll-delay-2">
-                    <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream flex items-center gap-2">
+                    <h2 className="font-accent text-lg font-bold text-ink dark:text-cream flex items-center gap-2 tracking-wide uppercase">
                       <Pin size={16} className="text-vermillion" /> Featured Posts
                     </h2>
                     {profilePinnedPosts.map(post => (
-                      <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
-                        <div className="flex items-start gap-4">
-                          <Link to={`/profile/${post.userId}`} className="h-10 w-10 rounded-full bg-gradient-to-br from-vermillion to-vermillion-dark flex items-center justify-center text-white text-[12px] font-bold shrink-0 hover:scale-110 transition-transform">
-                            {post.author.substring(0, 2).toUpperCase()}
-                          </Link>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Link to={`/profile/${post.userId}`} className="text-sm font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                              <span className="text-[10px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
-                              <span className="rounded-full bg-indigo-accent/10 px-2 py-0.5 text-[10px] font-medium text-indigo-accent">{post.channel}</span>
-                              <span className="text-[10px] text-ink-muted dark:text-cream-muted">in <span className="text-vermillion/80">{post.animeTitle}</span></span>
-                            </div>
-                            <p className="mt-2 text-sm text-ink-light dark:text-cream-muted leading-relaxed">{post.content}</p>
-                            <div className="mt-3 flex items-center gap-5 text-xs text-ink-muted dark:text-cream-muted">
-                              {post.agrees !== undefined && (
-                                <>
-                                  <span className="flex items-center gap-1 hover:text-sage-green cursor-pointer transition-colors"><ThumbsUp size={12} /> {post.agrees}</span>
-                                  <span className="flex items-center gap-1 hover:text-vermillion cursor-pointer transition-colors"><ThumbsDown size={12} /> {post.disagrees}</span>
-                                </>
-                              )}
-                              <span className="flex items-center gap-1 hover:text-indigo-accent cursor-pointer transition-colors"><MessageSquare size={12} /> {post.replies}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <PostCard key={post.id} post={post} />
                     ))}
                   </div>
                 )}
 
                 <div className="space-y-3 scroll-unroll scroll-unroll-delay-3">
-                  <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream">Recent Activity</h2>
+                  <h2 className="font-accent text-lg font-bold text-ink dark:text-cream tracking-wide uppercase">Recent Activity</h2>
                   <div className="brushstroke-divider" />
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="flex flex-col gap-4">
                     {profileRecentPosts.map(post => (
-                      <div key={post.id} className="paper-card paper-card-hover rounded-xl p-4">
-                        <div className="flex items-start gap-3">
-                          <Link to={`/profile/${post.userId}`} className={`h-8 w-8 rounded-full bg-gradient-to-br ${getCoverGradient(post.id)} flex items-center justify-center text-white text-[10px] font-bold shrink-0 hover:scale-110 transition-transform`}>
-                            {post.author.substring(0, 2).toUpperCase()}
-                          </Link>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <Link to={`/profile/${post.userId}`} className="text-xs font-semibold text-ink dark:text-cream hover:text-vermillion transition-colors">{post.author}</Link>
-                              <span className="text-[9px] text-ink-muted dark:text-cream-muted">• {post.timestamp}</span>
-                            </div>
-                            <p className="mt-1 text-xs text-ink-light dark:text-cream-muted leading-relaxed line-clamp-2">{post.content}</p>
-                            <div className="mt-2 flex items-center gap-2 text-[10px] text-ink-muted dark:text-cream-muted">
-                              <span className="text-vermillion/70 font-medium truncate">{post.animeTitle}</span>
-                              {post.episode && <span>Ep. {post.episode}</span>}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <PostCard key={post.id} post={post} />
                     ))}
                   </div>
                 </div>
+
+                <FavouriteSection 
+                  animanga={profileData?.starredEntries || []} 
+                  characters={profileData?.favoriteCharacters || []} 
+                  isOwnProfile={false} 
+                />
               </>
             )}
 
             {/* Scroll Tab */}
             {activeTab === 'Scroll' && (
               <div className="scroll-unroll scroll-unroll-delay-2">
-                <ProfileScrollSegment entries={profileData?.scrollData ?? []} />
+                <ProfileScrollSegment 
+                  entries={profileData?.scrollData ?? []} 
+                  cardSize={cardSize}
+                  setCardSize={setCardSize}
+                  formattingOpen={formattingOpen}
+                  setFormattingOpen={setFormattingOpen}
+                  isOwnProfile={false}
+                />
               </div>
             )}
 
-            {/* Favorites Tab */}
-            {activeTab === 'Favorites' && (
-              <div className="space-y-5 scroll-unroll scroll-unroll-delay-2">
-                <div>
-                  <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream">
-                    Starred Entries
-                  </h2>
-                  <div className="brushstroke-divider mb-3" />
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {profileData?.starredEntries?.map(entry => (
-                      <div key={entry.id} className="paper-card paper-card-hover rounded-xl overflow-hidden group">
-                        <div className="flex h-full">
-                          <div className="shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5 w-24 sm:w-28">
-                            <img
-                              src={entry.cover}
-                              alt={entry.title}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0 flex flex-col justify-between p-3">
-                            <div>
-                              <h3 className="font-bold text-ink dark:text-cream truncate leading-tight text-sm group-hover:text-vermillion transition-colors">
-                                {entry.title}
-                              </h3>
-                              <span className="text-[10px] text-ink-muted dark:text-cream-muted font-serif-jp">
-                                {entry.titleJp}
-                              </span>
-                            </div>
-                            <div className="mt-2 text-[10px] text-ink-muted dark:text-cream-muted">
-                              <span className="uppercase tracking-wide">
-                                {entry.type === 'anime' ? 'Anime' : 'Manga'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    {(!profileData?.starredEntries || profileData.starredEntries.length === 0) && (
-                      <p className="text-sm text-ink-muted dark:text-cream-muted">
-                        No starred entries yet.
-                      </p>
-                    )}
-                  </div>
-                </div>
 
-                <div>
-                  <h2 className="font-serif-jp text-lg font-semibold text-ink dark:text-cream">
-                    Favorite Characters
-                  </h2>
-                  <div className="brushstroke-divider mb-3" />
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {profileData?.favoriteCharacters?.map(character => (
-                      <div
-                        key={character.id}
-                        className="paper-card rounded-xl px-4 py-3 flex flex-col gap-1"
-                      >
-                        <span className="text-sm font-semibold text-ink dark:text-cream">
-                          {character.name}
-                        </span>
-                        <span className="text-[11px] text-ink-muted dark:text-cream-muted">
-                          {character.series}
-                        </span>
-                      </div>
-                    ))}
-                    {(!profileData?.favoriteCharacters ||
-                      profileData.favoriteCharacters.length === 0) && (
-                      <p className="text-sm text-ink-muted dark:text-cream-muted">
-                        No favorite characters recorded yet.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>

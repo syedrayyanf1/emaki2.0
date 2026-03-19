@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, LogIn, UserPlus } from 'lucide-react';
 import { ANIME_DB } from '../../mock/mockData';
 
-interface LandingProps {
-  onAuth: () => void;
-}
-
-export default function Landing({ onAuth }: LandingProps) {
+export default function Landing() {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleEnter = () => {
+    navigate('/profile');
+  };
 
   const filteredResults = searchQuery.trim() === '' 
     ? [] 
@@ -17,7 +19,7 @@ export default function Landing({ onAuth }: LandingProps) {
       ).slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-parchment dark:bg-night flex flex-col items-center justify-center p-6 text-center scroll-unroll">
+    <div className="min-h-screen bg-parchment dark:bg-night flex flex-col items-center justify-center p-6 text-center scroll-unroll transition-colors duration-500">
       {/* Background Decorative Element */}
       <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-vermillion blur-3xl"></div>
@@ -75,14 +77,14 @@ export default function Landing({ onAuth }: LandingProps) {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button 
-            onClick={onAuth}
+            onClick={handleEnter}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-vermillion hover:bg-vermillion-dark text-white px-8 py-4 rounded-2xl font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-vermillion/30"
           >
             <UserPlus size={20} />
             Start Your Scroll
           </button>
           <button 
-            onClick={onAuth}
+            onClick={handleEnter}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white dark:bg-white/5 hover:bg-ink/5 dark:hover:bg-white/10 border border-[#e8dfd2] dark:border-white/10 text-ink dark:text-cream px-8 py-4 rounded-2xl font-bold transition-all hover:scale-105 active:scale-95"
           >
             <LogIn size={20} />

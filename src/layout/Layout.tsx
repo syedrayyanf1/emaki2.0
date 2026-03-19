@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { User, BookOpen, MessageSquare, Compass, Cherry, Gift, Menu, X } from 'lucide-react';
+import { User, BookOpen, MessageSquare, Compass, Gift, Menu, X } from 'lucide-react';
 import { USER_PROFILE, RANKS } from '../mock/mockData';
 
 const NAV_ITEMS = [
-  { path: '/', label: 'Profile', icon: User },
+  { path: '/profile', label: 'Profile', icon: User },
   { path: '/scroll', label: 'Scroll', icon: BookOpen },
   { path: '/channels', label: 'Channels', icon: MessageSquare },
-  { path: '/seasonal', label: 'Seasonal', icon: Cherry },
   { path: '/discover', label: 'Discover', icon: Compass },
   { path: '/extras', label: 'Extras', icon: Gift },
 ];
@@ -16,10 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
-    localStorage.theme = 'dark';
-  }, []);
+
 
   return (
     <div className="min-h-screen bg-parchment transition-colors duration-300 dark:bg-night">
@@ -27,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-[#e8dfd2] dark:border-white/5 bg-parchment/95 dark:bg-night/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group">
+          <Link to="/profile" className="flex items-center gap-2.5 group">
             <img src="/logo.png" alt="Emaki Logo" className="h-12 w-12 transition-transform group-hover:rotate-12 drop-shadow-[0_0_8px_rgba(199,62,29,0.3)]" />
             <span className="font-logo text-2xl font-bold tracking-tight text-ink dark:text-cream">
               Emaki

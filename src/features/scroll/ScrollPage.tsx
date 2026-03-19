@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Star, Clock, CheckCircle, XCircle, BookmarkPlus, Film, BookOpen, Timer, ChevronDown } from 'lucide-react';
-import { ANIME_DB, getCoverGradient, type AnimeEntry } from '../../mock/mockData';
+import { Link } from 'react-router-dom';
+import { Star, Clock, CheckCircle, XCircle, BookmarkPlus, Film, BookOpen, ChevronDown } from 'lucide-react';
+import { ANIME_DB, type AnimeEntry } from '../../mock/mockData';
 
 type StatusFilter = 'all' | 'watching' | 'reading' | 'completed' | 'dropped' | 'planned';
 type TypeFilter = 'anime' | 'manga';
@@ -19,8 +20,8 @@ type SortMode = 'default' | 'score' | 'popularity' | 'recent';
 function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewPreset }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className="paper-card paper-card-hover rounded-xl overflow-hidden group">
-      <div className="flex h-full">
+    <div className="paper-card paper-card-hover rounded-xl overflow-hidden group cursor-pointer relative">
+      <Link to={`/entry/${entry.id}`} className="flex h-full">
         {/* Cover Image */}
         <div
           className={`shrink-0 relative overflow-hidden bg-ink/5 dark:bg-white/5 ${
@@ -95,8 +96,12 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
               
               {viewPreset !== 'detail' && (
                 <button
-                  onClick={() => setExpanded(!expanded)}
-                  className="ml-auto flex items-center gap-0.5 text-[10px] font-bold text-vermillion hover:opacity-80 transition-opacity"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExpanded(!expanded);
+                  }}
+                  className="ml-auto z-20 flex items-center gap-0.5 text-[10px] font-bold text-vermillion hover:opacity-80 transition-opacity"
                 >
                   {expanded ? 'LESS' : 'MORE'}
                   <ChevronDown size={12} className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
@@ -127,7 +132,7 @@ function EntryCard({ entry, viewPreset }: { entry: AnimeEntry; viewPreset: ViewP
             )}
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -186,25 +191,23 @@ export default function Scroll() {
       ? 'sm:grid-cols-1'
       : 'sm:grid-cols-2';
 
-  const headerBlocClass = 'paper-card rounded-xl px-3 py-2 min-w-[220px] max-w-[260px]';
-
   return (
     <div className="scroll-unroll space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="font-serif-jp text-2xl font-bold text-ink flex items-center gap-2">
-            <BookOpen size={24} className="text-vermillion" />
-            My Scroll
+          <h1 className="font-serif-jp text-3xl font-bold text-ink dark:text-cream flex items-center gap-2">
+            <BookOpen size={28} className="text-vermillion" />
+            The Scroll
           </h1>
-          <p className="text-sm text-ink-muted mt-0.5">
-            Your anime & manga tracking — every story you've unrolled
+          <p className="text-sm text-ink-muted dark:text-cream-muted mt-1 italic font-medium opacity-60">
+            A majestic chronicle of every story you've unrolled.
           </p>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          {/* Mode bloc (top-right only) */}
-          <div className={`${headerBlocClass} flex flex-col gap-1`}>
+          {/* Mode bloc */}
+          <div className="paper-card rounded-xl px-3 py-2 min-w-[220px] max-w-[260px]">
             <p className="text-[10px] uppercase tracking-[0.18em] text-ink-muted dark:text-cream-muted font-semibold">
               Mode
             </p>
@@ -225,7 +228,6 @@ export default function Scroll() {
               ))}
             </div>
           </div>
-
         </div>
       </div>
 
@@ -233,7 +235,7 @@ export default function Scroll() {
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Vertical tabs + Arrange + Layout */}
-        <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1 sticky top-6 self-start">
+        <aside className="w-full md:w-56 shrink-0 space-y-4 md:pt-1 sticky top-[72px] self-start z-10">
           <div className="paper-card rounded-xl p-2.5 space-y-2">
             <p className="text-[11px] uppercase tracking-[0.15em] text-ink-muted dark:text-cream-muted font-semibold">
               {typeFilter === 'anime' ? 'Anime Status' : 'Manga Status'}
@@ -247,7 +249,7 @@ export default function Scroll() {
                     : 'text-ink-muted hover:text-ink hover:bg-ink/5 dark:hover:bg-white/5'
                 }`}
               >
-                All {typeFilter === 'anime' ? 'Anime' : 'Manga'}{' '}
+                Watching / Reading{' '}
                 <span className="text-[10px] text-ink-muted dark:text-cream-muted">({allCount})</span>
               </button>
               {visibleStatusTabs.map(s => {
